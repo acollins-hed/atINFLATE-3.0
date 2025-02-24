@@ -1,5 +1,5 @@
 # atINFLATE-3.0
-Welcome to atINFLATE 3.0. AtINFLATE is that (a)aRS-(t)RNA (I)nteraction
+Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 (N)etwork (F)itness (LA)ndscape (E)xpress, a dynamic model of its
 predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. Installation
 requires Eigen 3.4.0. Make configure executable with something like
