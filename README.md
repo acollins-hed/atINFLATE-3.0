@@ -5,10 +5,11 @@ Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 (N)etwork (F)itness (LA)ndscape (T)opographer (E)xpress, a dynamic model of 
 its predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. 
 Installation requires g++ because there is the g++ sepcific instruction 
-__builtin_popcount() in Evolver.cpp which finds the weight of a number in the 
-coding theory sense (example: 5 in binary is 101 and would have a weight of 2
-since there are 2 ones in its binary representation), and the Eigen 3.4.0
-library is also required. Make configure executable with something like
+__builtin_popcount() in Genotype.cpp and Evolver.cpp which finds the weight 
+of a number in the coding theory sense (example: 5 in binary is 101 and 
+would have a weight of 2 since there are 2 ones in its binary 
+representation), and the Eigen 3.4.0 library is also required. Make 
+configure executable with something like
 
 chmod u+x configure
 
