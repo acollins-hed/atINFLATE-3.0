@@ -2,11 +2,11 @@
 Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 (N)etwork (F)itness (LA)ndscape (E)xpress, a dynamic model of its
 predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. Installation
-requires g++, since there is the g++ sepcific instruction 
+requires g++ because there is the g++ sepcific instruction 
 __builtin_popcount() in Evolver.cpp which finds the weight of a number in the 
-coding theory sense (example 5 in binary is 101 and would have a weight of 2
-since there are 2 ones in its binary representation), and Eigen 3.4.0. Make 
-configure executable with something like
+coding theory sense (example: 5 in binary is 101 and would have a weight of 2
+since there are 2 ones in its binary representation), and the Eigen 3.4.0
+library is also required. Make configure executable with something like
 
 chmod u+x configure
 
@@ -48,4 +48,7 @@ rate selection constant to 5x10^(-7), --Site-Types=50,50,50,50,50 sets all
 5 site-type frequencies to 50, -n=12 sets the interaction interface bit
 length to 12, -T=5 and -A=5 set the number of tRNAs and aaRSs to 5 each (it
 also sets the number of site-types = 5 by default, unless a different number
-of site-types is specified).
+of site-types is specified). The final parameter -o=test will cause all the
+data and log file names to be prepended with "test", for example the
+trajectory datafile will be called test_traj.dat and the log file will be
+named test.log.
