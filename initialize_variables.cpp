@@ -4,7 +4,6 @@
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Read_Input_File.hpp"
-//#include "conversions.hpp"
 #include "convertToDouble.hpp"
 #include "BadConversion.hpp"
 #include "common_variables.hpp"
@@ -722,7 +721,6 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
       }      
     }
   }
-  std::cout<<"The Codon Mutations are\n"<<common_variables->mutation_mat<<std::endl;
   
   return 1;
 }

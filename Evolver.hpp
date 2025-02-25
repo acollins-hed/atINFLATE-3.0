@@ -7,7 +7,6 @@
 #include "Documents.hpp"
 #include "Mutant.hpp"
 #include "fitness_functions.hpp"
-//#include "Stats.hpp"
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"

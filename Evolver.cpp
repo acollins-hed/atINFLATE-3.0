@@ -4,7 +4,6 @@
 #include "Documents.hpp"
 #include "Mutant.hpp"
 #include "fitness_functions.hpp"
-//#include "Stats.hpp"
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"
@@ -857,9 +856,6 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   int fixation;
   int N_trajectory = common_variables->N_trajectory;
   
-  std::cout<<"Initial tRNAs\n"<<population.genotype.trnas.iis<<std::endl;
-  std::cout<<"Initial aaRSs\n"<<population.genotype.aarss.iis<<std::endl;
-  
   if(common_variables->bl_input_filename)
     documents.Open_files(common_variables->input_filename,common_variables->bl_input_filename);
   else{
@@ -868,6 +864,8 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   }
   
   Record_Initial_State(common_variables);
+  std::cout.flush();
+  std::cout<<"[0/"<<N_trajectory<<" trajectories completed]";
   
   //rate dependent and masking is applied
   if(common_variables->rate && common_variables->mask){
@@ -891,6 +889,8 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
 	
       }
       Record_Final_State(common_variables);
+      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
+      std::cout.flush();
     }
   }
   //rate independent and masking is applied
@@ -909,12 +909,13 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       
       while(population.fitness < halting_fitness && fixation < halting_fixation){
 	Fix_rim(common_variables);
-	//std::cout<<"trans prob is "<<mutant_vector[0].trans_prob<<std::endl;
 	fixation++;
 	Record_Data(trajectory,fixation,common_variables);
 	
       }
       Record_Final_State(common_variables);
+      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
+      std::cout.flush();
     }
   }
   
@@ -933,12 +934,13 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       
       while(population.fitness < halting_fitness && fixation < halting_fixation){
 	Fix_rdu(common_variables);
-	//std::cout<<"trans prob is "<<mutant_vector[0].trans_prob<<std::endl;
 	fixation++;
 	Record_Data(trajectory,fixation,common_variables);
 	
       }
       Record_Final_State(common_variables);
+      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
+      std::cout.flush();
     }
   }
   
@@ -957,19 +959,17 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       
       while(population.fitness < halting_fitness && fixation < halting_fixation){
 	Fix_riu(common_variables);
-	//std::cout<<"trans prob is "<<mutant_vector[0].trans_prob<<std::endl;
 	fixation++;
 	Record_Data(trajectory,fixation,common_variables);
 	
       }
       Record_Final_State(common_variables);
+      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
+      std::cout.flush();
     }
   }
-  
-  std::cout<<"Final tRNAs\n"<<population.genotype.trnas.iis<<std::endl;
-  std::cout<<"Final aaRSs\n"<<population.genotype.aarss.iis<<std::endl;
-  
-  
+
+  std::cout<<std::endl;
   documents.Close_files();
 }
  
