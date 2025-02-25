@@ -2,9 +2,9 @@
 February 2025
 
 Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
-(N)etwork (F)itness (LA)ndscape (E)xpress, a dynamic model of its
-predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. Installation
-requires g++ because there is the g++ sepcific instruction 
+(N)etwork (F)itness (LA)ndscape (T)opographer (E)xpress, a dynamic model of 
+its predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. 
+Installation requires g++ because there is the g++ sepcific instruction 
 __builtin_popcount() in Evolver.cpp which finds the weight of a number in the 
 coding theory sense (example: 5 in binary is 101 and would have a weight of 2
 since there are 2 ones in its binary representation), and the Eigen 3.4.0
