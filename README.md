@@ -8,23 +8,11 @@ Installation requires g++ because there is the g++ sepcific instruction
 __builtin_popcount() in Genotype.cpp and Evolver.cpp which finds the weight 
 of a number in the coding theory sense (example: 5 in binary is 101 and 
 would have a weight of 2 since there are 2 ones in its binary 
-representation), and the Eigen 3.4.0 library is also required. Make 
-configure executable with something like
+representation), and the Eigen 3.4.0 library is also required.
 
-chmod u+x configure
+To install simply type
 
-and then run configure with
-
-./configure
-
-and it will prompt you to enter the absolute path to Eigen 3.4.0, e.g.
-
-/home/user/Eigen/eigen-3.4.0
-
-After entering the absolute path the configure file will create the Makefile.
-In the terminal, simply type
-
-make
+make EIGEN=/PATH/TO/EIGEN
 
 and it will compile all the code. Type
 
