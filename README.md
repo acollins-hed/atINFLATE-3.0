@@ -14,6 +14,8 @@ To install simply type
 
 make EIGEN=/PATH/TO/EIGEN
 
+for example, it might look like: make EIGEN=/home/user/Eigen/eigen-3.4.0
+
 and it will compile all the code. Type
 
 ./atinflate_3 -h
