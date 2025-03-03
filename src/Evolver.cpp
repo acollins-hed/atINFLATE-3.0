@@ -19,7 +19,7 @@ struct Evolver{
 
   void Quick_Sort(int low, int high);
 
-  void initialize_mutants(struct Common_Variables * common_variables);
+  //void initialize_mutants(struct Common_Variables * common_variables);
   
   void Get_Mutants_rdm(struct Common_Variables * common_variables);
 
@@ -90,6 +90,7 @@ void Evolver::Quick_Sort(int low, int high){
   }
 }
 
+/*
 void Evolver::initialize_mutants(struct Common_Variables * common_variables){
   mutant_vector.resize(common_variables->N_total_mutants);
   //int N_int_interface = common_variables->N_int_interface;
@@ -144,6 +145,7 @@ void Evolver::initialize_mutants(struct Common_Variables * common_variables){
   }
   
 }
+*/
 
 void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
@@ -151,7 +153,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   int index = 0;
   common_variables->prob_of_1_mutation=0;
   common_variables->prob_of_2_mutations=0;
-
+  
   //Finding single mutation mutants
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
@@ -241,7 +243,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
-  
+
   for(int i=0;i<index;i++){
     mutant_vector[i].trans_prob /= sum;
   }
@@ -642,16 +644,16 @@ void Evolver::Record_Data(int trajectory, int fixation, struct Common_Variables 
   
   //interface file
   for(int i = 0; i<common_variables->N_tRNA;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" State "<<population.genotype.trnas.get_trna_int(0,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" State "<<population.genotype.trnas.get_trna_int(0,i)<<" "<<population.genotype.trnas.iis(0,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_tRNA;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" Mask "<<population.genotype.trnas.get_trna_int(1,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" Mask "<<population.genotype.trnas.get_trna_int(1,i)<<" "<<population.genotype.aarss.iis(0,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<" "<<population.genotype.trnas.iis(1,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" Mask "<<population.genotype.aarss.get_aars_int(1,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" Mask "<<population.genotype.aarss.get_aars_int(1,i)<<" "<<population.genotype.aarss.iis(1,i)<<std::endl;
   }
   
   //codon file
@@ -861,6 +863,7 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   Record_Initial_State(common_variables);
   std::cout.flush();
   std::cout<<"[0/"<<N_trajectory<<" trajectories completed]";
+  std::cout.flush();
   
   //rate dependent and masking is applied
   if(common_variables->rate && common_variables->mask){
