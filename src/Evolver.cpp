@@ -18,6 +18,8 @@ struct Evolver{
   int Hoarse_Partition(int low, int high);
 
   void Quick_Sort(int low, int high);
+
+  void initialize_mutants(struct Common_Variables * common_variables);
   
   void Get_Mutants_rdm(struct Common_Variables * common_variables);
 
@@ -88,20 +90,75 @@ void Evolver::Quick_Sort(int low, int high){
   }
 }
 
+void Evolver::initialize_mutants(struct Common_Variables * common_variables){
+  mutant_vector.resize(common_variables->N_total_mutants);
+  //int N_int_interface = common_variables->N_int_interface;
+  int N_sm = common_variables->N_single_mutants;
+  int index = 0;
+  
+  //Finding single mutation mutants
+  for(int row=0; row<2; row++){
+    for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
+      for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
+	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
+	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
+	mutant_vector[index].mutation_1.which_trans_machinery=col;
+	mutant_vector[index].mutation_1.mutation_position=i;
+	mutant_vector[index].mutation_1.mask=row;
+	
+	index++;
+      }
+    }
+  }
+  
+  for(int row=0; row<2; row++){
+    for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
+      for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
+	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
+	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
+	mutant_vector[index].mutation_1.which_trans_machinery=col;
+	mutant_vector[index].mutation_1.mutation_position=i;
+	mutant_vector[index].mutation_1.mask=row;
+
+	index++;
+      }
+    }
+  }
+
+
+  for(int i=0;i<N_sm;i++){
+    for(int j=i+1;j<N_sm;j++){
+      
+      mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
+      mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
+      mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
+      mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
+      
+      mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
+      mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
+      mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
+      mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
+      
+      index++;
+    }
+  }
+  
+}
+
 void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
   struct Mutant mutant;
   int index = 0;
   common_variables->prob_of_1_mutation=0;
   common_variables->prob_of_2_mutations=0;
-  
+
   //Finding single mutation mutants
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
       for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
 	struct Population mutant_pop = population;
 	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
 	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -122,7 +179,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
 	struct Population mutant_pop = population;
 	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
 	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -173,7 +230,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
 	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
 	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
 	
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
 	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
 	mutant_vector[index].trans_prob = trans_prob; 
@@ -210,7 +267,7 @@ void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
       for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
 	struct Population mutant_pop = population;
 	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
 	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -231,7 +288,7 @@ void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
 	struct Population mutant_pop = population;
 	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
 	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -282,7 +339,7 @@ void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
 	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
 	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
 	
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
 	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
 	mutant_vector[index].trans_prob = trans_prob; 
@@ -318,7 +375,7 @@ void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
     for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
       struct Population mutant_pop = population;
       mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code(common_variables);
+      mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 't';
       mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -338,7 +395,7 @@ void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
     for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
       struct Population mutant_pop = population;
       mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code(common_variables);
+      mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
       mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -389,7 +446,7 @@ void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
 	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
 	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
 	
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
 	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
 	mutant_vector[index].trans_prob = trans_prob; 
@@ -425,7 +482,7 @@ void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
     for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
       struct Population mutant_pop = population;
       mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code(common_variables);
+      mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 't';
       mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -445,7 +502,7 @@ void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
     for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
       struct Population mutant_pop = population;
       mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code(common_variables);
+      mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
       mutant_vector[index].mutation_2.kind_trans_machinery = '0';
@@ -496,7 +553,7 @@ void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
 	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
 	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
 	
-	mutant_pop.genotype.Get_Code(common_variables);
+	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
 	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
 	mutant_vector[index].trans_prob = trans_prob; 
@@ -631,14 +688,14 @@ void Evolver::Record_Final_State(struct Common_Variables * common_variables){
 }
 
 void Evolver::Set_New_Population_rdm(struct Common_Variables * common_variables){
-  population.genotype.Get_Code(common_variables);
-  population.Get_Codon_Freq(common_variables);
+  population.genotype.Get_Code();
+  population.Get_Codon_Freq();
   population.fitness = Fitness_rate_dep(&population.codon_frequency,&population.genotype.code,&population.genotype.kd,common_variables);
 }
 
 void Evolver::Set_New_Population_rim(struct Common_Variables * common_variables){
-  population.genotype.Get_Code(common_variables);
-  population.Get_Codon_Freq(common_variables);
+  population.genotype.Get_Code();
+  population.Get_Codon_Freq();
   population.fitness = Fitness_rate_indep(&population.codon_frequency,&population.genotype.code,common_variables);
 }
 

@@ -11,18 +11,20 @@
 
 struct Genotype
 {
+  double kmax;
+  double epsilon;
   tRNAs trnas;
   aaRSs aarss;
   Eigen::MatrixXd code;
   Eigen::MatrixXd kd;
   Eigen::MatrixXd matches;
-  void Get_Code(struct Common_Variables * common_variables);
+  void Get_Code();
 
   Genotype();
 
   Genotype(tRNAs t, aaRSs a,struct Common_Variables * common_variables);
 
-  Eigen::MatrixXd Get_kd(struct Common_Variables * common_variables);
+  Eigen::MatrixXd Get_kd();
 
 };
 
