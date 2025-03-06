@@ -2,7 +2,6 @@
 #define EVOLVER_HPP
 
 #include<iostream>
-#include<thread>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -11,7 +10,6 @@
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"
-#include "get_mutant_trans_probs.hpp"
 
 struct Evolver{
   struct Population population;

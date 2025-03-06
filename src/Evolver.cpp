@@ -1,5 +1,4 @@
 #include<iostream>
-#include<thread>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -8,7 +7,6 @@
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"
-#include "get_mutant_trans_probs.hpp"
 
 struct Evolver{
   struct Population population;
@@ -176,7 +174,6 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
-
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
@@ -245,7 +242,6 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
-  
   for(int i=0;i<index;i++){
     mutant_vector[i].trans_prob /= sum;
   }
