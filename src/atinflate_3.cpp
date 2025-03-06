@@ -64,6 +64,8 @@ int main(int argc, char* argv[]){
 
   evolver.mutant_vector.resize(common_variables.N_total_mutants);
 
+  evolver.initialize_mutants(&common_variables);
+
   evolver.Run_Simulation(&common_variables);
   
   end_time = clock();

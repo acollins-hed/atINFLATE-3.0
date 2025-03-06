@@ -1,4 +1,5 @@
 #include<iostream>
+#include<thread>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -7,6 +8,7 @@
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"
+#include "get_mutant_trans_probs.hpp"
 
 struct Evolver{
   struct Population population;
@@ -19,7 +21,7 @@ struct Evolver{
 
   void Quick_Sort(int low, int high);
 
-  //void initialize_mutants(struct Common_Variables * common_variables);
+  void initialize_mutants(struct Common_Variables * common_variables);
   
   void Get_Mutants_rdm(struct Common_Variables * common_variables);
 
@@ -90,7 +92,6 @@ void Evolver::Quick_Sort(int low, int high){
   }
 }
 
-/*
 void Evolver::initialize_mutants(struct Common_Variables * common_variables){
   mutant_vector.resize(common_variables->N_total_mutants);
   //int N_int_interface = common_variables->N_int_interface;
@@ -145,7 +146,6 @@ void Evolver::initialize_mutants(struct Common_Variables * common_variables){
   }
   
 }
-*/
 
 void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
@@ -155,6 +155,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   common_variables->prob_of_2_mutations=0;
   
   //Finding single mutation mutants
+  
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
       for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
@@ -175,12 +176,12 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
-  
+
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
 	struct Population mutant_pop = population;
-	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
+	mutant_pop.genotype.aarss.iis(row,col) ^= 1<<i;
 	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
@@ -202,17 +203,18 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
   //Finding double mutation mutants
   if(common_variables->bl_double_mutants){
     for(int i=0;i<common_variables->N_single_mutants;i++){
-      struct Population mutant_pop = population;
-      long double trans_prob=0;
-      if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-      else
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	  mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
       
       for(int j=i+1;j<common_variables->N_single_mutants;j++){
+	struct Population mutant_pop = population;
+	long double trans_prob=0;
+	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
+	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	else
+	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
+	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	else
+	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
+	
 	
 	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
 	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
@@ -230,7 +232,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
 	mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
 	mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
 	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
+	mutant_vector[index].mutation_2.mask = mutant_vector[j].mutation_1.mask;
 	
 	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
@@ -243,7 +245,7 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
-
+  
   for(int i=0;i<index;i++){
     mutant_vector[i].trans_prob /= sum;
   }
@@ -289,7 +291,7 @@ void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
     for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
 	struct Population mutant_pop = population;
-	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
+	mutant_pop.genotype.aarss.iis(row,col) ^= 1<<i;
 	mutant_pop.genotype.Get_Code();
 	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
 	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
@@ -311,17 +313,18 @@ void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
   //Finding double mutation mutants
   if(common_variables->bl_double_mutants){
     for(int i=0;i<common_variables->N_single_mutants;i++){
-      struct Population mutant_pop = population;
-      long double trans_prob=0;
-      if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-      else
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	  mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
       
       for(int j=i+1;j<common_variables->N_single_mutants;j++){
+
+	struct Population mutant_pop = population;
+	long double trans_prob=0;
+	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
+	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	else
+	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
+	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	  else
+	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
 	
 	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
 	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
@@ -396,7 +399,7 @@ void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
   for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
     for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
       struct Population mutant_pop = population;
-      mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
+      mutant_pop.genotype.aarss.iis(0,col) ^= 1<<i;
       mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
@@ -418,17 +421,18 @@ void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
   //Finding double mutation mutants
   if(common_variables->bl_double_mutants){
     for(int i=0;i<common_variables->N_single_mutants;i++){
-      struct Population mutant_pop = population;
-      long double trans_prob=0;
-      if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-      else
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	  mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
       
       for(int j=i+1;j<common_variables->N_single_mutants;j++){
+
+	struct Population mutant_pop = population;
+	long double trans_prob=0;
+	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
+	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	else
+	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
+	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	  else
+	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
 	
 	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
 	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
@@ -503,7 +507,7 @@ void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
   for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
     for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
       struct Population mutant_pop = population;
-      mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
+      mutant_pop.genotype.aarss.iis(0,col) ^= 1<<i;
       mutant_pop.genotype.Get_Code();
       mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
       mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
@@ -525,17 +529,18 @@ void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
   //Finding double mutation mutants
   if(common_variables->bl_double_mutants){
     for(int i=0;i<common_variables->N_single_mutants;i++){
-      struct Population mutant_pop = population;
-      long double trans_prob=0;
-      if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-      else
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	  mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
       
       for(int j=i+1;j<common_variables->N_single_mutants;j++){
+
+	struct Population mutant_pop = population;
+	long double trans_prob=0;
+	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
+	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	else
+	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
+	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
+	  else
+	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
 	
 	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
 	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;

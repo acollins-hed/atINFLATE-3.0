@@ -50,5 +50,5 @@ void Documents::Write_headers(void){
   prob_file<<"Trajectory Fixation Site_Type Amino_Acid Probability\n";
   code_file<<"Trajectory Fixation tRNA aaRS Prob_Interaction Match kd\n";
   codon_file<<"Trajectory Fixation Site_Type Codon Codon_Frequency\n";
-  int_file<<"Trajectory Fixation Molecule Number Type Value\n";
+  int_file<<"Trajectory Fixation Molecule Number Type BValue DValue\n";
 }
