@@ -47,3 +47,4 @@ trajectory datafile will be called test_traj.dat and the log file will be
 named test.log.
 
 Adding this line to test commit verification.
+Adding this line to test commit verification.
