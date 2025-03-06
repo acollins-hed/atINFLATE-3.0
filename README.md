@@ -45,5 +45,3 @@ of site-types is specified). The final parameter -o=test will cause all the
 data and log file names to be prepended with "test", for example the
 trajectory datafile will be called test_traj.dat and the log file will be
 named test.log.
-
-Another commit verification test line
