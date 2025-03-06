@@ -1,5 +1,5 @@
 # atINFLATE-3.0
-February 2025
+February-March 2025
 
 Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 (N)etwork (F)itness (LA)ndscape (T)opographer (E)xpress, a dynamic model of 
