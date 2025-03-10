@@ -1,4 +1,5 @@
 #include<iostream>
+#include<thread>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -7,6 +8,7 @@
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "Population.hpp"
+#include "get_mutant_trans_probs.hpp"
 
 struct Evolver{
   struct Population population;
@@ -174,6 +176,14 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
+  /*
+  std::ofstream mut_file;
+  mut_file.open("mut1.dat",std::ios_base::app);
+  for(int i=0;i<common_variables->N_single_mutants/2;i++){
+    mut_file<<i<<" "<<mutant_vector[i].trans_prob<<std::endl;
+  }
+  mut_file.close();
+  */
   for(int row=0; row<2; row++){
     for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
@@ -242,6 +252,17 @@ void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
       }
     }
   }
+  /*
+  std::cout<<"mutant_vector[last].trans_prob = "<<mutant_vector[mutant_vector.size()-1].trans_prob<<std::endl;
+  std::ofstream mut_file;
+  mut_file.open("mut_file.dat",std::ios_base::app);
+  for(unsigned int i=0; i<mutant_vector.size();i++){
+    mut_file<<mutant_vector[i].mutation_1.kind_trans_machinery<<" "<<mutant_vector[i].mutation_1.which_trans_machinery<<" "<<mutant_vector[i].mutation_1.mask<<" "<<mutant_vector[i].mutation_1.mutation_position<<" "<<mutant_vector[i].mutation_2.kind_trans_machinery<<" "<<mutant_vector[i].mutation_2.which_trans_machinery<<" "<<mutant_vector[i].mutation_2.mask<<" "<<mutant_vector[i].mutation_2.mutation_position<<" "<<mutant_vector[i].trans_prob<<std::endl;
+  }
+  mut_file.close();
+  
+  std::cout<<"sum is "<<sum<<std::endl;
+  */
   for(int i=0;i<index;i++){
     mutant_vector[i].trans_prob /= sum;
   }
@@ -648,10 +669,10 @@ void Evolver::Record_Data(int trajectory, int fixation, struct Common_Variables 
     documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" State "<<population.genotype.trnas.get_trna_int(0,i)<<" "<<population.genotype.trnas.iis(0,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_tRNA;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" Mask "<<population.genotype.trnas.get_trna_int(1,i)<<" "<<population.genotype.aarss.iis(0,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" Mask "<<population.genotype.trnas.get_trna_int(1,i)<<" "<<population.genotype.trnas.iis(1,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<" "<<population.genotype.trnas.iis(1,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<" "<<population.genotype.trnas.iis(0,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
     documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" Mask "<<population.genotype.aarss.get_aars_int(1,i)<<" "<<population.genotype.aarss.iis(1,i)<<std::endl;
