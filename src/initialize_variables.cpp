@@ -26,8 +26,8 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   common_variables->output_filename="run";
   common_variables->end_fixation=0;
   common_variables->bl_double_mutants=true;
-  common_variables->prob_of_1_mutation = 0;
-  common_variables->prob_of_2_mutations = 0;
+  //common_variables->prob_of_1_mutation = 0;
+  //common_variables->prob_of_2_mutations = 0;
   common_variables->rate=true;
   common_variables->mask=true;
   common_variables->N_threads = 1;

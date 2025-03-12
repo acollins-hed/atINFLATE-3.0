@@ -3,6 +3,8 @@
 #include<Eigen/Core>
 #include<random>
 #include<map>
+#include "Mutation.hpp"
+#include "Mutant.hpp"
 
 struct Common_Variables{
   int N_aaRS;
@@ -29,8 +31,8 @@ struct Common_Variables{
   double transition_bias;
   double rate_exponent;
   double rate_constant;
-  long double prob_of_1_mutation;
-  long double prob_of_2_mutations;
+  //long double prob_of_1_mutation;
+  //long double prob_of_2_mutations;
   std::string output_filename;
   std::string mutation_type;
   std::string input_filename;
@@ -57,4 +59,5 @@ struct Common_Variables{
   bool bl_rate_const;
   bool bl_input_filename;
   bool bl_double_mutants;
+  struct Mutant fixed_mutant;
 };

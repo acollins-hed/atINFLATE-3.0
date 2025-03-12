@@ -136,8 +136,8 @@ void Evolver::initialize_mutants(struct Common_Variables * common_variables){
 void Evolver::Get_Mutants_rd(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
   struct Mutant mutant;
-  common_variables->prob_of_1_mutation=0;
-  common_variables->prob_of_2_mutations=0;
+  //common_variables->prob_of_1_mutation=0;
+  //common_variables->prob_of_2_mutations=0;
   
   unsigned int N_threads = common_variables->N_threads;
   unsigned int mutants_per_thread = mutant_vector.size()/N_threads;
@@ -173,12 +173,12 @@ void Evolver::Get_Mutants_rd(struct Common_Variables * common_variables){
     delete thrd[i];
     delete sum_vec[i];
   }
-
+  /*
   common_variables->prob_of_1_mutation = sum;
 
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  
+  */
   Quick_Sort(0,common_variables->N_total_mutants - 1);
 }
 
@@ -186,8 +186,8 @@ void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
   struct Mutant mutant;
   
-  common_variables->prob_of_1_mutation=0;
-  common_variables->prob_of_2_mutations=0;
+  //common_variables->prob_of_1_mutation=0;
+  //common_variables->prob_of_2_mutations=0;
 
   unsigned int N_threads = common_variables->N_threads;
   unsigned int mutants_per_thread = mutant_vector.size()/N_threads;
@@ -225,12 +225,12 @@ void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
     delete thrd[i];
     delete sum_vec[i];
   }
-
+  /*
   common_variables->prob_of_1_mutation = sum;
 
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  
+  */
   Quick_Sort(0,common_variables->N_total_mutants - 1);
 }
   
@@ -288,7 +288,7 @@ void Evolver::Record_Data(int trajectory, int fixation, struct Common_Variables 
   for(int i=0;i<common_variables->N_aaRS;i++)
     frac_on += __builtin_popcount(population.genotype.aarss.iis(1,i));
   frac_on = frac_on/(common_variables->N_int_interface*(common_variables->N_tRNA+common_variables->N_aaRS));
-  documents.traj_file<<trajectory<<" "<<fixation<<" "<<population.fitness<<" "<<frac_on<<" "<<common_variables->mutation_type<<" "<<common_variables->prob_of_1_mutation<<" "<<common_variables->prob_of_2_mutations<<std::endl;
+  documents.traj_file<<trajectory<<" "<<fixation<<" "<<population.fitness<<" "<<frac_on<<" "<<common_variables->mutation_type<<" "<<common_variables->fixed_mutant.mutation_1.kind_trans_machinery<<" "<<common_variables->fixed_mutant.mutation_1.which_trans_machinery<<" "<<common_variables->fixed_mutant.mutation_1.mutation_position<<" "<<common_variables->fixed_mutant.mutation_1.mask<<" "<<common_variables->fixed_mutant.mutation_2.kind_trans_machinery<<" "<<common_variables->fixed_mutant.mutation_2.which_trans_machinery<<" "<<common_variables->fixed_mutant.mutation_2.mutation_position<<" "<<common_variables->fixed_mutant.mutation_2.mask<<std::endl;//" "<<common_variables->prob_of_1_mutation<<" "<<common_variables->prob_of_2_mutations<<std::endl;
   
   //code file
   for(int trna_no=0;trna_no<common_variables->N_tRNA;trna_no++){
@@ -371,6 +371,8 @@ void Evolver::Fix_rd(struct Common_Variables * common_variables){
       break;
     }
   }
+
+  common_variables->fixed_mutant = *mutant_vector[mutant_num];
   
   if(mutant_vector[mutant_num]->mutation_1.kind_trans_machinery == 't'){
     population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
@@ -407,6 +409,8 @@ void Evolver::Fix_ri(struct Common_Variables * common_variables){
       break;
     }
   }
+
+  common_variables->fixed_mutant = *mutant_vector[mutant_num];
   
   if(mutant_vector[mutant_num]->mutation_1.kind_trans_machinery == 't'){
     population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
@@ -452,8 +456,8 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
       Get_Next_TransMach(trajectory,common_variables);
       Set_New_Population_rd(common_variables);
-      common_variables->prob_of_1_mutation=0;
-      common_variables->prob_of_2_mutations=0;
+      //common_variables->prob_of_1_mutation=0;
+      //common_variables->prob_of_2_mutations=0;
       
       fixation = common_variables->end_fixation;
       if(!common_variables->bl_input_filename){
@@ -475,8 +479,8 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
       Get_Next_TransMach(trajectory,common_variables);
       Set_New_Population_ri(common_variables);
-      common_variables->prob_of_1_mutation=0;
-      common_variables->prob_of_2_mutations=0;
+      //common_variables->prob_of_1_mutation=0;
+      //common_variables->prob_of_2_mutations=0;
       
       fixation = common_variables->end_fixation;
       if(!common_variables->bl_input_filename){
