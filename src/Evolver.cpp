@@ -217,9 +217,9 @@ void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
   std::for_each(sum_vec.begin(),sum_vec.end(), [&sum] (long double *subtotal) {sum += *subtotal;});
 
   
-  for(unsigned int i=0;i<mutant_vector.size();i++){
+  for(unsigned int i=0;i<mutant_vector.size();i++)
     mutant_vector[i]->trans_prob /= sum;
-  }
+  
 
   for(unsigned int i=0;i<N_threads;i++){
     delete thrd[i];
@@ -426,7 +426,7 @@ void Evolver::Fix_ri(struct Common_Variables * common_variables){
   }
   
   Set_New_Population_ri(common_variables);
-}  
+}
 
 void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   double halting_fitness = common_variables->halting_fitness;
@@ -471,9 +471,7 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
       std::cout.flush();
     }
-  }
-  //rate independent and masking is applied
-  if(!common_variables->rate){
+  } else{
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
       Get_Next_TransMach(trajectory,common_variables);
       Set_New_Population_ri(common_variables);

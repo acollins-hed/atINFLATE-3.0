@@ -30,10 +30,11 @@
 #include "initialize_variables.hpp"
 
 int main(int argc, char* argv[]){
+
   auto start = std::chrono::high_resolution_clock::now();
-  
+
   struct Common_Variables common_variables;
-  
+
   Eigen::initParallel();
   if(!initialize_variables(argc, argv,&common_variables))    
     return 0;
@@ -69,7 +70,7 @@ int main(int argc, char* argv[]){
 
   auto end = std::chrono::high_resolution_clock::now();
   double Time_taken = (end - start).count() * ((double) std::chrono::high_resolution_clock::period::num/std::chrono::high_resolution_clock::period::den);
-  
+
   std::cout << "Run time: "<<Time_taken<<" seconds"<<std::endl;
   std::cout << "Run time: "<<Time_taken/60<<" minutes"<<std::endl;
   std::cout << "Run time: "<<Time_taken/3600<<" hours"<<std::endl;

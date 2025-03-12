@@ -5,7 +5,6 @@
 #include <fstream>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-//#include "conversions.hpp"
 #include "BadConversion.hpp"
 #include "convertToDouble.hpp"
 #include "common_variables.hpp"

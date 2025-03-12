@@ -60,7 +60,6 @@ struct Common_Variables{
   bool bl_rate_const;
   bool bl_input_filename;
   bool bl_double_mutants;
-  bool bl_mthreading;
 };
 
 #endif

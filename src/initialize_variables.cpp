@@ -30,8 +30,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   common_variables->prob_of_2_mutations = 0;
   common_variables->rate=true;
   common_variables->mask=true;
-  common_variables->bl_mthreading = false;
-  common_variables->N_threads=1;
+  common_variables->N_threads = 1;
   
   if(argc == 1)
     std::cout<<"\n\nEnter \"atinflate -h\" or \"atinflate --help\" for help\n\n";
@@ -59,7 +58,6 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	  std::cout<<"\nThe number of threads must be greater than 0. Use -h or --help for more.\n\n";
 	  return 0;
 	}
-	
       }
     
     if(str_arg.substr(0,3) == "-n=")
