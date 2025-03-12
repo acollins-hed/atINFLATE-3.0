@@ -87,6 +87,8 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     common_variables->end_fixation = stoi(cp);
     icheckpoint_file>>cp;
     common_variables->halting_fitness = convertToDouble(cp);
+    icheckpoint_file>>cp;
+    common_variables->N_threads = stoi(cp);
     if(!bl_halting_fixation){
       std::cout<<"You need to use --fxhalt with -i or --ifile. See --help or -h for more.\n\n";
       return 0;

@@ -1,5 +1,6 @@
 #include<iostream>
 #include<thread>
+#include<algorithm>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -12,7 +13,7 @@
 
 struct Evolver{
   struct Population population;
-  std::vector<Mutant> mutant_vector;
+  std::vector<Mutant*> mutant_vector;
   struct Documents documents;
 
   Evolver(struct Population pop);
@@ -23,13 +24,9 @@ struct Evolver{
 
   void initialize_mutants(struct Common_Variables * common_variables);
   
-  void Get_Mutants_rdm(struct Common_Variables * common_variables);
+  void Get_Mutants_rd(struct Common_Variables * common_variables);
 
-  void Get_Mutants_rim(struct Common_Variables * common_variables);
-
-  void Get_Mutants_rdu(struct Common_Variables * common_variables);
-
-  void Get_Mutants_riu(struct Common_Variables * common_variables);
+  void Get_Mutants_ri(struct Common_Variables * common_variables);
   
   void Get_Next_TransMach(int trajectory, struct Common_Variables * common_variables);
 
@@ -39,17 +36,13 @@ struct Evolver{
 
   void Record_Final_State(struct Common_Variables * common_variables);
 
-  void Set_New_Population_rdm(struct Common_Variables * common_variables);
+  void Set_New_Population_rd(struct Common_Variables * common_variables);
 
-  void Set_New_Population_rim(struct Common_Variables * common_variables);
+  void Set_New_Population_ri(struct Common_Variables * common_variables);
   
-  void Fix_rdm(struct Common_Variables * common_variables);
+  void Fix_rd(struct Common_Variables * common_variables);
 
-  void Fix_rim(struct Common_Variables * common_variables);
-
-  void Fix_rdu(struct Common_Variables * common_variables);
- 
-  void Fix_riu(struct Common_Variables * common_variables);
+  void Fix_ri(struct Common_Variables * common_variables);
   
   void Run_Simulation(struct Common_Variables * common_variables);
  
@@ -63,16 +56,16 @@ Evolver::Evolver(struct Population pop)
 int Evolver::Hoarse_Partition(int low, int high){
   int i = low-1, j = high+1;
   int mid = low + (high - low)/2;
-  struct Mutant pivot = mutant_vector[mid];
+  struct Mutant* pivot = mutant_vector[mid];
     
   while(true){
     do{
       i++;
-    }while(mutant_vector[i].trans_prob > pivot.trans_prob);
+    }while(mutant_vector[i]->trans_prob > pivot->trans_prob);
     
     do{
       j--;
-    }while(mutant_vector[j].trans_prob < pivot.trans_prob);
+    }while(mutant_vector[j]->trans_prob < pivot->trans_prob);
     
     if(i>=j)
       return j;
@@ -93,514 +86,153 @@ void Evolver::Quick_Sort(int low, int high){
 }
 
 void Evolver::initialize_mutants(struct Common_Variables * common_variables){
-  mutant_vector.resize(common_variables->N_total_mutants);
+  //mutant_vector.resize(common_variables->N_total_mutants);
   //int N_int_interface = common_variables->N_int_interface;
+  mutant_vector.clear();
   int N_sm = common_variables->N_single_mutants;
-  int index = 0;
+  
+  int maxrow = 1;
+  char tmach[2];
+  tmach[0] = 't';
+  tmach[1] = 'a';
+
+  if(common_variables->mask)
+    maxrow = 2;
   
   //Finding single mutation mutants
-  for(int row=0; row<2; row++){
+  for(int row=0; row<maxrow; row++){
     for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
       for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
-	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-	
-	index++;
+	mutant_vector.push_back(new struct Mutant(tmach[0],col,i,row));
       }
     }
   }
   
-  for(int row=0; row<2; row++){
+  for(int row=0; row<maxrow; row++){
     for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
       for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
-	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-
-	index++;
+	mutant_vector.push_back(new struct Mutant(tmach[1],col,i,row));
       }
     }
   }
 
-
-  for(int i=0;i<N_sm;i++){
-    for(int j=i+1;j<N_sm;j++){
-      
-      mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
-      mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
-      mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
-      mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
-      
-      mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
-      mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
-      mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-      mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
-      
-      index++;
+  if(common_variables->bl_double_mutants){
+    for(int i=0;i<N_sm;i++){
+      for(int j=i+1;j<N_sm;j++){
+	char t1 = mutant_vector[i]->mutation_1.kind_trans_machinery;
+	char t2 = mutant_vector[j]->mutation_1.kind_trans_machinery;
+	int w1 = mutant_vector[i]->mutation_1.which_trans_machinery;
+	int w2 = mutant_vector[j]->mutation_1.which_trans_machinery;
+	int m1 = mutant_vector[i]->mutation_1.mask;
+	int m2 = mutant_vector[j]->mutation_1.mask;
+	int p1 = mutant_vector[i]->mutation_1.mutation_position;
+	int p2 = mutant_vector[j]->mutation_1.mutation_position;
+	mutant_vector.push_back(new struct Mutant(t1,w1,p1,m1,t2,w2,p2,m2));
+      }
     }
   }
-  
 }
 
-void Evolver::Get_Mutants_rdm(struct Common_Variables * common_variables){
+void Evolver::Get_Mutants_rd(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
   struct Mutant mutant;
-  int index = 0;
   common_variables->prob_of_1_mutation=0;
   common_variables->prob_of_2_mutations=0;
   
-  //Finding single mutation mutants
+  unsigned int N_threads = common_variables->N_threads;
+  unsigned int mutants_per_thread = mutant_vector.size()/N_threads;
   
-  for(int row=0; row<2; row++){
-    for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
-      for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
-	struct Population mutant_pop = population;
-	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-	long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-	mutant_vector[index].trans_prob = trans_prob;
-	sum += trans_prob;
-	
-	index++;
-      }
-    }
-  }
-  /*
-  std::ofstream mut_file;
-  mut_file.open("mut1.dat",std::ios_base::app);
-  for(int i=0;i<common_variables->N_single_mutants/2;i++){
-    mut_file<<i<<" "<<mutant_vector[i].trans_prob<<std::endl;
-  }
-  mut_file.close();
-  */
-  for(int row=0; row<2; row++){
-    for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
-      for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
-	struct Population mutant_pop = population;
-	mutant_pop.genotype.aarss.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-	long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-	mutant_vector[index].trans_prob = trans_prob;
-	sum += trans_prob;
-	
-	index++;
-      }
-    }
+  std::vector<long double*> sum_vec;
+  sum_vec.clear();
+  std::vector<std::vector<struct Mutant*>> mut_subvec;
+  std::vector<std::thread*> thrd;
+  
+  for(unsigned int i=0, start_val=0;start_val<mutant_vector.size();start_val+=mutants_per_thread,i++){
+    sum_vec.push_back(new long double (0));
+    unsigned int mutants_to_do = mutants_per_thread;
+    if(start_val+mutants_per_thread < mutant_vector.size() && start_val + mutants_per_thread*2 > mutant_vector.size())
+      mutants_to_do = ((int) mutant_vector.size()) - start_val;
+    std::vector<struct Mutant*>::const_iterator first = mutant_vector.begin()+start_val;
+    std::vector<struct Mutant*>::const_iterator last = mutant_vector.begin()+start_val + mutants_to_do;
+    std::vector<struct Mutant*> v(first,last);
+    mut_subvec.push_back(v);
+    thrd.push_back(new std::thread(get_trans_prob_rd,mut_subvec[i],&population,common_variables,sum_vec[i]));
+    if(mutants_to_do != mutants_per_thread)
+      break;
   }
   
+  for(unsigned int i=0;i<N_threads;i++)
+    thrd[i]->join();
+
+  std::for_each(sum_vec.begin(),sum_vec.end(), [&sum] (long double *subtotal) {sum += *subtotal;});
+
+  for(unsigned int i=0;i<mutant_vector.size();i++)
+    mutant_vector[i]->trans_prob /= sum;
+
+  for(unsigned int i=0;i<N_threads;i++){
+    delete thrd[i];
+    delete sum_vec[i];
+  }
+
   common_variables->prob_of_1_mutation = sum;
-  
-  //Finding double mutation mutants
-  if(common_variables->bl_double_mutants){
-    for(int i=0;i<common_variables->N_single_mutants;i++){
-      
-      for(int j=i+1;j<common_variables->N_single_mutants;j++){
-	struct Population mutant_pop = population;
-	long double trans_prob=0;
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	
-	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
-	mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
-	
-	if(mutant_vector[j].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[j].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-	mutant_vector[index].mutation_2.mask = mutant_vector[j].mutation_1.mask;
-	
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
-	mutant_vector[index].trans_prob = trans_prob; 
-	
-	index++;
-	common_variables->prob_of_2_mutations += mutant_vector[index].trans_prob;
-	sum += trans_prob;
-      }
-    }
-  }
-  /*
-  std::cout<<"mutant_vector[last].trans_prob = "<<mutant_vector[mutant_vector.size()-1].trans_prob<<std::endl;
-  std::ofstream mut_file;
-  mut_file.open("mut_file.dat",std::ios_base::app);
-  for(unsigned int i=0; i<mutant_vector.size();i++){
-    mut_file<<mutant_vector[i].mutation_1.kind_trans_machinery<<" "<<mutant_vector[i].mutation_1.which_trans_machinery<<" "<<mutant_vector[i].mutation_1.mask<<" "<<mutant_vector[i].mutation_1.mutation_position<<" "<<mutant_vector[i].mutation_2.kind_trans_machinery<<" "<<mutant_vector[i].mutation_2.which_trans_machinery<<" "<<mutant_vector[i].mutation_2.mask<<" "<<mutant_vector[i].mutation_2.mutation_position<<" "<<mutant_vector[i].trans_prob<<std::endl;
-  }
-  mut_file.close();
-  
-  std::cout<<"sum is "<<sum<<std::endl;
-  */
-  for(int i=0;i<index;i++){
-    mutant_vector[i].trans_prob /= sum;
-  }
-  
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
+
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   
   Quick_Sort(0,common_variables->N_total_mutants - 1);
 }
 
-void Evolver::Get_Mutants_rim(struct Common_Variables * common_variables){
+void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
   long double sum=0;//for normalizing the sum of transition probabilities
   struct Mutant mutant;
-  int index = 0;
+  
   common_variables->prob_of_1_mutation=0;
   common_variables->prob_of_2_mutations=0;
-  
-  //Finding single mutation mutants
-  for(int row=0; row<2; row++){
-    for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
-      for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
-	struct Population mutant_pop = population;
-	mutant_pop.genotype.trnas.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-	mutant_vector[index].mutation_1.kind_trans_machinery = 't';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-	long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-	mutant_vector[index].trans_prob = trans_prob;
-	sum += trans_prob;
-	
-	index++;
-      }
-    }
-  }
-  
-  for(int row=0; row<2; row++){
-    for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
-      for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
-	struct Population mutant_pop = population;
-	mutant_pop.genotype.aarss.iis(row,col) ^= 1<<i;
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-	mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
-	mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-	mutant_vector[index].mutation_1.which_trans_machinery=col;
-	mutant_vector[index].mutation_1.mutation_position=i;
-	mutant_vector[index].mutation_1.mask=row;
-	long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-	mutant_vector[index].trans_prob = trans_prob;
-	sum += trans_prob;
-	
-	index++;
-      }
-    }
-  }
-  
-  common_variables->prob_of_1_mutation = sum;
-  
-  //Finding double mutation mutants
-  if(common_variables->bl_double_mutants){
-    for(int i=0;i<common_variables->N_single_mutants;i++){
-      
-      for(int j=i+1;j<common_variables->N_single_mutants;j++){
 
-	struct Population mutant_pop = population;
-	long double trans_prob=0;
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
-	mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
-	
-	if(mutant_vector[j].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[j].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
-	
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
-	mutant_vector[index].trans_prob = trans_prob; 
-	
-	index++;
-	common_variables->prob_of_2_mutations += mutant_vector[index].trans_prob;
-	sum += trans_prob;
-      }
-    }
+  unsigned int N_threads = common_variables->N_threads;
+  unsigned int mutants_per_thread = mutant_vector.size()/N_threads;
+  
+  std::vector<long double*> sum_vec;
+  sum_vec.clear();
+  std::vector<std::vector<struct Mutant*>> mut_subvec;
+  std::vector<std::thread*> thrd;
+  
+  for(unsigned int i=0, start_val=0;start_val<mutant_vector.size();start_val+=mutants_per_thread,i++){
+    sum_vec.push_back(new long double (0));
+    unsigned int mutants_to_do = mutants_per_thread;
+    if(start_val+mutants_per_thread < mutant_vector.size() && start_val + mutants_per_thread*2 > mutant_vector.size())
+      mutants_to_do = ((int) mutant_vector.size()) - start_val;
+    std::vector<struct Mutant*>::const_iterator first = mutant_vector.begin()+start_val;
+    std::vector<struct Mutant*>::const_iterator last = mutant_vector.begin()+start_val + mutants_to_do;
+    std::vector<struct Mutant*> v(first,last);
+    mut_subvec.push_back(v);
+    thrd.push_back(new std::thread(get_trans_prob_ri,mut_subvec[i],&population,common_variables,sum_vec[i]));
+    if(mutants_to_do != mutants_per_thread)
+      break;
   }
   
-  for(int i=0;i<index;i++){
-    mutant_vector[i].trans_prob /= sum;
-  }
+  for(unsigned int i=0;i<N_threads;i++)
+    thrd[i]->join();
+
+  std::for_each(sum_vec.begin(),sum_vec.end(), [&sum] (long double *subtotal) {sum += *subtotal;});
+
   
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
+  for(unsigned int i=0;i<mutant_vector.size();i++){
+    mutant_vector[i]->trans_prob /= sum;
+  }
+
+  for(unsigned int i=0;i<N_threads;i++){
+    delete thrd[i];
+    delete sum_vec[i];
+  }
+
+  common_variables->prob_of_1_mutation = sum;
+
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   
   Quick_Sort(0,common_variables->N_total_mutants - 1);
 }
-
-void Evolver::Get_Mutants_rdu(struct Common_Variables * common_variables){
-  long double sum=0;//for normalizing the sum of transition probabilities
-  struct Mutant mutant;
-  int index = 0;
-  common_variables->prob_of_1_mutation=0;
-  common_variables->prob_of_2_mutations=0;
-  
-  //Finding single mutation mutants
-  for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
-    for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
-      struct Population mutant_pop = population;
-      mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code();
-      mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-      mutant_vector[index].mutation_1.kind_trans_machinery = 't';
-      mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-      mutant_vector[index].mutation_1.which_trans_machinery=col;
-      mutant_vector[index].mutation_1.mutation_position=i;
-      mutant_vector[index].mutation_1.mask=0;
-      long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-      mutant_vector[index].trans_prob = trans_prob;
-      sum += trans_prob;
-      
-      index++;
-    }
-  }
-  
-  
-  for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
-    for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
-      struct Population mutant_pop = population;
-      mutant_pop.genotype.aarss.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code();
-      mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-      mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
-      mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-      mutant_vector[index].mutation_1.which_trans_machinery=col;
-      mutant_vector[index].mutation_1.mutation_position=i;
-      mutant_vector[index].mutation_1.mask=0;
-      long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-      mutant_vector[index].trans_prob = trans_prob;
-      sum += trans_prob;
-      
-      index++;
-    }
-  }
-  
-  
-  common_variables->prob_of_1_mutation = sum;
-  
-  //Finding double mutation mutants
-  if(common_variables->bl_double_mutants){
-    for(int i=0;i<common_variables->N_single_mutants;i++){
-      
-      for(int j=i+1;j<common_variables->N_single_mutants;j++){
-
-	struct Population mutant_pop = population;
-	long double trans_prob=0;
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
-	mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
-	
-	if(mutant_vector[j].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[j].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
-	
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_dep(&population.codon_frequency,&mutant_pop.genotype.code,&mutant_pop.genotype.kd,common_variables);
-	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
-	mutant_vector[index].trans_prob = trans_prob; 
-	
-	index++;
-	common_variables->prob_of_2_mutations += mutant_vector[index].trans_prob;
-	sum += trans_prob;
-      }
-    }
-  }
-  
-  for(int i=0;i<index;i++){
-    mutant_vector[i].trans_prob /= sum;
-  }
-  
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  
-  Quick_Sort(0,common_variables->N_total_mutants - 1);
-}
-
-void Evolver::Get_Mutants_riu(struct Common_Variables * common_variables){
-  long double sum=0;//for normalizing the sum of transition probabilities
-  struct Mutant mutant;
-  int index = 0;
-  common_variables->prob_of_1_mutation=0;
-  common_variables->prob_of_2_mutations=0;
-  
-  //Finding single mutation mutants
-  for(int col=0; col<population.genotype.trnas.iis.cols(); col++){
-    for(int i=0;i<population.genotype.trnas.N_int_interface;i++){
-      struct Population mutant_pop = population;
-      mutant_pop.genotype.trnas.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code();
-      mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-      mutant_vector[index].mutation_1.kind_trans_machinery = 't';
-      mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-      mutant_vector[index].mutation_1.which_trans_machinery=col;
-      mutant_vector[index].mutation_1.mutation_position=i;
-      mutant_vector[index].mutation_1.mask=0;
-      long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-      mutant_vector[index].trans_prob = trans_prob;
-      sum += trans_prob;
-      
-      index++;
-    }
-  }
-  
-  
-  for(int col=0; col<population.genotype.aarss.iis.cols(); col++){
-    for(int i=0;i<population.genotype.aarss.N_int_interface;i++){
-      struct Population mutant_pop = population;
-      mutant_pop.genotype.aarss.iis(0,col) ^= 1<<i;
-      mutant_pop.genotype.Get_Code();
-      mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-      mutant_vector[index].mutation_1.kind_trans_machinery = 'a';
-      mutant_vector[index].mutation_2.kind_trans_machinery = '0';
-      mutant_vector[index].mutation_1.which_trans_machinery=col;
-      mutant_vector[index].mutation_1.mutation_position=i;
-      mutant_vector[index].mutation_1.mask=0;
-      long double trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,1,common_variables);
-      mutant_vector[index].trans_prob = trans_prob;
-      sum += trans_prob;
-      
-      index++;
-    }
-  }
-  
-  
-  common_variables->prob_of_1_mutation = sum;
-  
-  //Finding double mutation mutants
-  if(common_variables->bl_double_mutants){
-    for(int i=0;i<common_variables->N_single_mutants;i++){
-      
-      for(int j=i+1;j<common_variables->N_single_mutants;j++){
-
-	struct Population mutant_pop = population;
-	long double trans_prob=0;
-	if(mutant_vector[i].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[i].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[i].mutation_1.mask,mutant_vector[i].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[i].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_1.kind_trans_machinery = mutant_vector[i].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_1.which_trans_machinery = mutant_vector[i].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_1.mutation_position = mutant_vector[i].mutation_1.mutation_position;
-	mutant_vector[index].mutation_1.mask = mutant_vector[i].mutation_1.mask;
-	
-	if(mutant_vector[j].mutation_1.kind_trans_machinery == 't')
-	  mutant_pop.genotype.trnas.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	else
-	  if(mutant_vector[j].mutation_1.kind_trans_machinery == 'a')
-	    mutant_pop.genotype.aarss.iis(mutant_vector[j].mutation_1.mask,mutant_vector[j].mutation_1.which_trans_machinery) ^= 1<<(mutant_vector[j].mutation_1.mutation_position);
-	  else
-	    std::cout<<"Error, some mutation is neither tRNA nor aaRS.\n";
-	
-	mutant_vector[index].mutation_2.kind_trans_machinery = mutant_vector[j].mutation_1.kind_trans_machinery;
-	mutant_vector[index].mutation_2.which_trans_machinery = mutant_vector[j].mutation_1.which_trans_machinery;
-	mutant_vector[index].mutation_2.mutation_position = mutant_vector[j].mutation_1.mutation_position;
-	mutant_vector[index].mutation_2.mask = mutant_vector[i].mutation_1.mask;
-	
-	mutant_pop.genotype.Get_Code();
-	mutant_pop.fitness = Fitness_rate_indep(&population.codon_frequency,&mutant_pop.genotype.code,common_variables);
-	trans_prob = Transition_Probability(population.fitness,mutant_pop.fitness,2,common_variables);
-	mutant_vector[index].trans_prob = trans_prob; 
-	
-	index++;
-	common_variables->prob_of_2_mutations += mutant_vector[index].trans_prob;
-	sum += trans_prob;
-      }
-    }
-  }
-  
-  for(int i=0;i<index;i++){
-    mutant_vector[i].trans_prob /= sum;
-  }
-  
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
-  
-  Quick_Sort(0,common_variables->N_total_mutants - 1);
-}
-
   
 void Evolver::Get_Next_TransMach(int trajectory, struct Common_Variables * common_variables){
   population.genotype.trnas.iis.row(0) = common_variables->tRNA_State_bits.row(trajectory);
@@ -645,6 +277,7 @@ void Evolver::Record_Initial_State(struct Common_Variables * common_variables){
   documents.ocheckpoint_file<<common_variables->N_trajectory<<std::endl;
   documents.ocheckpoint_file<<common_variables->halting_fixation<<std::endl;
   documents.ocheckpoint_file<<common_variables->halting_fitness<<std::endl;
+  documents.ocheckpoint_file<<common_variables->N_threads<<std::endl;
 }
   
 void Evolver::Record_Data(int trajectory, int fixation, struct Common_Variables * common_variables){
@@ -672,7 +305,7 @@ void Evolver::Record_Data(int trajectory, int fixation, struct Common_Variables 
     documents.int_file<<trajectory<<" "<<fixation<<" "<<"tRNA "<<i<<" Mask "<<population.genotype.trnas.get_trna_int(1,i)<<" "<<population.genotype.trnas.iis(1,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
-    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<" "<<population.genotype.trnas.iis(0,i)<<std::endl;
+    documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" State "<<population.genotype.aarss.get_aars_int(0,i)<<" "<<population.genotype.aarss.iis(0,i)<<std::endl;
   }
   for(int i = 0; i<common_variables->N_aaRS;i++){
     documents.int_file<<trajectory<<" "<<fixation<<" "<<"aaRS "<<common_variables->amino_acids(i)<<" Mask "<<population.genotype.aarss.get_aars_int(1,i)<<" "<<population.genotype.aarss.iis(1,i)<<std::endl;
@@ -711,169 +344,96 @@ void Evolver::Record_Final_State(struct Common_Variables * common_variables){
   documents.ocheckpoint_file<<std::endl;
 }
 
-void Evolver::Set_New_Population_rdm(struct Common_Variables * common_variables){
+void Evolver::Set_New_Population_rd(struct Common_Variables * common_variables){
   population.genotype.Get_Code();
   population.Get_Codon_Freq();
   population.fitness = Fitness_rate_dep(&population.codon_frequency,&population.genotype.code,&population.genotype.kd,common_variables);
 }
 
-void Evolver::Set_New_Population_rim(struct Common_Variables * common_variables){
+void Evolver::Set_New_Population_ri(struct Common_Variables * common_variables){
   population.genotype.Get_Code();
   population.Get_Codon_Freq();
   population.fitness = Fitness_rate_indep(&population.codon_frequency,&population.genotype.code,common_variables);
 }
 
-void Evolver::Fix_rdm(struct Common_Variables * common_variables){
+void Evolver::Fix_rd(struct Common_Variables * common_variables){
   long double rand_n = common_variables->gillespie_rand(common_variables->mersene_twister), sum = 0;
   long unsigned int mutant_num=0;
   
   common_variables->mutation_type = "single";
   
-  Get_Mutants_rdm(common_variables);
+  Get_Mutants_rd(common_variables);
   
   for(long unsigned int nth_mutant=0; nth_mutant<mutant_vector.size();nth_mutant++){
-    sum += mutant_vector[nth_mutant].trans_prob;
+    sum += mutant_vector[nth_mutant]->trans_prob;
     if(sum > rand_n){
       mutant_num=nth_mutant;
       break;
     }
   }
   
-  if(mutant_vector[mutant_num].mutation_1.kind_trans_machinery == 't'){
-    population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
+  if(mutant_vector[mutant_num]->mutation_1.kind_trans_machinery == 't'){
+    population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
   }
   else{
-    population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
+    population.genotype.aarss.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
   }
   
-  if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery != '0'){
-    if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery == 't'){
-      population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
+  if(mutant_vector[mutant_num]->mutation_2.kind_trans_machinery != '0'){
+    if(mutant_vector[mutant_num]->mutation_2.kind_trans_machinery == 't'){
+      population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_2.mask,mutant_vector[mutant_num]->mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_2.mutation_position;
     }
     else{
-      population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
+      population.genotype.aarss.iis(mutant_vector[mutant_num]->mutation_2.mask,mutant_vector[mutant_num]->mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_2.mutation_position;
     }
     common_variables->mutation_type = "double";
   }
   
-  Set_New_Population_rdm(common_variables);
+  Set_New_Population_rd(common_variables);
 }  
 
-void Evolver::Fix_rim(struct Common_Variables * common_variables){
+void Evolver::Fix_ri(struct Common_Variables * common_variables){
   long double rand_n = common_variables->gillespie_rand(common_variables->mersene_twister), sum = 0;
   long unsigned int mutant_num=0;
   
   common_variables->mutation_type = "single";
   
-  Get_Mutants_rim(common_variables);
+  Get_Mutants_ri(common_variables);
   
   for(long unsigned int nth_mutant=0; nth_mutant<mutant_vector.size();nth_mutant++){
-    sum += mutant_vector[nth_mutant].trans_prob;
+    sum += mutant_vector[nth_mutant]->trans_prob;
     if(sum > rand_n){
       mutant_num=nth_mutant;
       break;
     }
   }
   
-  if(mutant_vector[mutant_num].mutation_1.kind_trans_machinery == 't'){
-    population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
+  if(mutant_vector[mutant_num]->mutation_1.kind_trans_machinery == 't'){
+    population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
   }
   else{
-    population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
+    population.genotype.aarss.iis(mutant_vector[mutant_num]->mutation_1.mask,mutant_vector[mutant_num]->mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_1.mutation_position;
   }
   
-  if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery != '0'){
-    if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery == 't'){
-      population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
+  if(mutant_vector[mutant_num]->mutation_2.kind_trans_machinery != '0'){
+    if(mutant_vector[mutant_num]->mutation_2.kind_trans_machinery == 't'){
+      population.genotype.trnas.iis(mutant_vector[mutant_num]->mutation_2.mask,mutant_vector[mutant_num]->mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_2.mutation_position;
     }
     else{
-      population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
+      population.genotype.aarss.iis(mutant_vector[mutant_num]->mutation_2.mask,mutant_vector[mutant_num]->mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num]->mutation_2.mutation_position;
     }
     common_variables->mutation_type = "double";
   }
   
-  Set_New_Population_rim(common_variables);
+  Set_New_Population_ri(common_variables);
 }  
 
-void Evolver::Fix_rdu(struct Common_Variables * common_variables){
-  long double rand_n = common_variables->gillespie_rand(common_variables->mersene_twister), sum = 0;
-  long unsigned int mutant_num=0;
-  
-  common_variables->mutation_type = "single";
-  
-  Get_Mutants_rdu(common_variables);
-  
-  for(long unsigned int nth_mutant=0; nth_mutant<mutant_vector.size();nth_mutant++){
-    sum += mutant_vector[nth_mutant].trans_prob;
-    if(sum > rand_n){
-      mutant_num=nth_mutant;
-      break;
-    }
-  }
-  
-  if(mutant_vector[mutant_num].mutation_1.kind_trans_machinery == 't'){
-    population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
-  }
-  else{
-    population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
-  }
-  
-  if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery != '0'){
-    if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery == 't'){
-      population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
-    }
-    else{
-      population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
-    }
-    common_variables->mutation_type = "double";
-  }
-  
-  Set_New_Population_rdm(common_variables);
-}  
-
-void Evolver::Fix_riu(struct Common_Variables * common_variables){
-  long double rand_n = common_variables->gillespie_rand(common_variables->mersene_twister), sum = 0;
-  long unsigned int mutant_num=0;
-  
-  common_variables->mutation_type = "single";
-  
-  Get_Mutants_riu(common_variables);
-  
-  for(long unsigned int nth_mutant=0; nth_mutant<mutant_vector.size();nth_mutant++){
-    sum += mutant_vector[nth_mutant].trans_prob;
-    if(sum > rand_n){
-      mutant_num=nth_mutant;
-      break;
-    }
-  }
-  
-  if(mutant_vector[mutant_num].mutation_1.kind_trans_machinery == 't'){
-    population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
-  }
-  else{
-    population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_1.mask,mutant_vector[mutant_num].mutation_1.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_1.mutation_position;
-  }
-  
-  if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery != '0'){
-    if(mutant_vector[mutant_num].mutation_2.kind_trans_machinery == 't'){
-      population.genotype.trnas.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
-    }
-    else{
-      population.genotype.aarss.iis(mutant_vector[mutant_num].mutation_2.mask,mutant_vector[mutant_num].mutation_2.which_trans_machinery) ^= 1<<mutant_vector[mutant_num].mutation_2.mutation_position;
-    }
-    common_variables->mutation_type = "double";
-  }
-  
-  Set_New_Population_rim(common_variables);
-}  
-
-  
-  
 void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   double halting_fitness = common_variables->halting_fitness;
   int halting_fixation = common_variables->halting_fixation;
   int fixation;
   int N_trajectory = common_variables->N_trajectory;
+  std::vector<struct Mutant*> mut_vec_ptr(mutant_vector);
   
   if(common_variables->bl_input_filename)
     documents.Open_files(common_variables->input_filename,common_variables->bl_input_filename);
@@ -888,10 +448,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   std::cout.flush();
   
   //rate dependent and masking is applied
-  if(common_variables->rate && common_variables->mask){
+  if(common_variables->rate){
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
       Get_Next_TransMach(trajectory,common_variables);
-      Set_New_Population_rdm(common_variables);
+      Set_New_Population_rd(common_variables);
       common_variables->prob_of_1_mutation=0;
       common_variables->prob_of_2_mutations=0;
       
@@ -902,10 +462,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       }
       
       while(population.fitness < halting_fitness && fixation < halting_fixation){
-	Fix_rdm(common_variables);
+	Fix_rd(common_variables);
 	fixation++;
 	Record_Data(trajectory,fixation,common_variables);
-	
+	mutant_vector = mut_vec_ptr;
       }
       Record_Final_State(common_variables);
       std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
@@ -913,10 +473,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
     }
   }
   //rate independent and masking is applied
-  if(!common_variables->rate && common_variables->mask){
+  if(!common_variables->rate){
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
       Get_Next_TransMach(trajectory,common_variables);
-      Set_New_Population_rim(common_variables);
+      Set_New_Population_ri(common_variables);
       common_variables->prob_of_1_mutation=0;
       common_variables->prob_of_2_mutations=0;
       
@@ -927,60 +487,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       }
       
       while(population.fitness < halting_fitness && fixation < halting_fixation){
-	Fix_rim(common_variables);
+	Fix_ri(common_variables);
 	fixation++;
 	Record_Data(trajectory,fixation,common_variables);
-	
-      }
-      Record_Final_State(common_variables);
-      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
-      std::cout.flush();
-    }
-  }
-  
-  if(common_variables->rate && !common_variables->mask){
-    for(int trajectory=0; trajectory<N_trajectory;trajectory++){
-      Get_Next_TransMach(trajectory,common_variables);
-      Set_New_Population_rdm(common_variables);
-      common_variables->prob_of_1_mutation=0;
-      common_variables->prob_of_2_mutations=0;
-      
-      fixation = common_variables->end_fixation;
-      if(!common_variables->bl_input_filename){
-	common_variables->mutation_type="none";
-	Record_Data(trajectory,fixation,common_variables);
-      }
-      
-      while(population.fitness < halting_fitness && fixation < halting_fixation){
-	Fix_rdu(common_variables);
-	fixation++;
-	Record_Data(trajectory,fixation,common_variables);
-	
-      }
-      Record_Final_State(common_variables);
-      std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
-      std::cout.flush();
-    }
-  }
-  
-  if(!common_variables->rate && !common_variables->mask){
-    for(int trajectory=0; trajectory<N_trajectory;trajectory++){
-      Get_Next_TransMach(trajectory,common_variables);
-      Set_New_Population_rim(common_variables);
-      common_variables->prob_of_1_mutation=0;
-      common_variables->prob_of_2_mutations=0;
-      
-      fixation = common_variables->end_fixation;
-      if(!common_variables->bl_input_filename){
-	common_variables->mutation_type="none";
-	Record_Data(trajectory,fixation,common_variables);
-      }
-      
-      while(population.fitness < halting_fitness && fixation < halting_fixation){
-	Fix_riu(common_variables);
-	fixation++;
-	Record_Data(trajectory,fixation,common_variables);
-	
+	mutant_vector = mut_vec_ptr;
       }
       Record_Final_State(common_variables);
       std::cout<<"\r["<<trajectory+1<<"/"<<N_trajectory<<" trajectories completed]";
@@ -988,6 +498,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
     }
   }
 
+  for(unsigned int i=0;i<mutant_vector.size();i++){
+    delete mutant_vector[i];
+  }
+  
   std::cout<<std::endl;
   documents.Close_files();
 }

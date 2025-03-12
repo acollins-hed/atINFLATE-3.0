@@ -3,6 +3,7 @@
 
 #include<iostream>
 #include<thread>
+#include<algorithm>
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Documents.hpp"
@@ -26,13 +27,9 @@ struct Evolver{
 
   void initialize_mutants(struct Common_Variables * common_variables);
   
-  void Get_Mutants_rdm(struct Common_Variables * common_variables);
+  void Get_Mutants_rd(struct Common_Variables * common_variables);
 
-  void Get_Mutants_rim(struct Common_Variables * common_variables);
-
-  void Get_Mutants_rdu(struct Common_Variables * common_variables);
-
-  void Get_Mutants_riu(struct Common_Variables * common_variables);
+  void Get_Mutants_ri(struct Common_Variables * common_variables);
   
   void Get_Next_TransMach(int trajectory, struct Common_Variables * common_variables);
 
@@ -42,17 +39,13 @@ struct Evolver{
 
   void Record_Final_State(struct Common_Variables * common_variables);
 
-  void Set_New_Population_rdm(struct Common_Variables * common_variables);
+  void Set_New_Population_rd(struct Common_Variables * common_variables);
 
-  void Set_New_Population_rim(struct Common_Variables * common_variables);
+  void Set_New_Population_ri(struct Common_Variables * common_variables);
   
-  void Fix_rdm(struct Common_Variables * common_variables);
+  void Fix_rd(struct Common_Variables * common_variables);
 
-  void Fix_rim(struct Common_Variables * common_variables);
-
-  void Fix_rdu(struct Common_Variables * common_variables);
- 
-  void Fix_riu(struct Common_Variables * common_variables);
+  void Fix_ri(struct Common_Variables * common_variables);
   
   void Run_Simulation(struct Common_Variables * common_variables);
  

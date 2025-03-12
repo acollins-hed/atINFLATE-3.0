@@ -18,10 +18,10 @@ int Get_Mutant_Vector_Size(struct Common_Variables * common_variables){
   else{
     single_mutants = (common_variables->N_tRNA+common_variables->N_aaRS)*common_variables->N_int_interface;
   }
-    double_mutants = (single_mutants*(single_mutants-1))/2;
-
-    if(common_variables->bl_double_mutants)
-      return (double_mutants + single_mutants) ;
-    else
-      return single_mutants;
+  double_mutants = (single_mutants*(single_mutants-1))/2;
+  
+  if(common_variables->bl_double_mutants)
+    return (double_mutants + single_mutants) ;
+  else
+    return single_mutants;
 }

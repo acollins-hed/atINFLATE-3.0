@@ -6,7 +6,7 @@
 #include<Eigen/Core>
 #include<unsupported/Eigen/KroneckerProduct>
 #include<cmath>
-#include<time.h>
+#include<chrono>
 #include<random>
 #include<map>
 #include<utility>
@@ -30,8 +30,7 @@
 #include "initialize_variables.hpp"
 
 int main(int argc, char* argv[]){
-  clock_t start_time,end_time;
-  start_time = clock();
+  auto start = std::chrono::high_resolution_clock::now();
   
   struct Common_Variables common_variables;
   
@@ -67,10 +66,13 @@ int main(int argc, char* argv[]){
   evolver.initialize_mutants(&common_variables);
 
   evolver.Run_Simulation(&common_variables);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  double Time_taken = (end - start).count() * ((double) std::chrono::high_resolution_clock::period::num/std::chrono::high_resolution_clock::period::den);
   
-  end_time = clock();
-  std::cout<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<" seconds\n";
-  std::cout<<(double)(end_time-start_time)/CLOCKS_PER_SEC/60<<" minutes\n";
-  std::cout<<(double)(end_time-start_time)/CLOCKS_PER_SEC/3600<<" hours\n";
+  std::cout << "Run time: "<<Time_taken<<" seconds"<<std::endl;
+  std::cout << "Run time: "<<Time_taken/60<<" minutes"<<std::endl;
+  std::cout << "Run time: "<<Time_taken/3600<<" hours"<<std::endl;
+
   return 0;
 }
