@@ -46,7 +46,7 @@ void Documents::Close_files(void){
 }
   
 void Documents::Write_headers(void){
-  traj_file<<"Trajectory Fixation Fitness Percent_On Mut.type.1 Mut.which.1 Mut.position.1 Mut.mask.1 Mut.type.2 Mut.which.2 Mut.position.2 Mut.mask.2\n";// Mutation_Type P_Of_1Mut P_Of_2Mut\n";
+  traj_file<<"Trajectory Fixation Fitness Percent_On Mutation_Type Mut.type.1 Mut.which.1 Mut.position.1 Mut.mask.1 Mut.type.2 Mut.which.2 Mut.position.2 Mut.mask.2\n";// P_Of_1Mut P_Of_2Mut\n";
   prob_file<<"Trajectory Fixation Site_Type Amino_Acid Probability\n";
   code_file<<"Trajectory Fixation tRNA aaRS Prob_Interaction Match kd\n";
   codon_file<<"Trajectory Fixation Site_Type Codon Codon_Frequency\n";

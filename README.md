@@ -6,11 +6,11 @@ Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 its predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. 
 
 ## Getting Started
-Clone the atINFLATE git repository and change directory into your local clone
-to compile atINFLATE
+Clone the atINFLATE-3.0 git repository and change directory into your local
+clone to compile atinflate_3
 
 ## Pre-Installation of Dependencies
-Compiling atinflate_3 requires a local copy of Eigen 3.4.0 or the
+Compiling atinflate_3 requires a local copy of Eigen 3.4.0, the
 [Eigen C++ template library for linear algebra](https://eigen.tuxfamily.org/dox/GettingStarted.html). `atinflate_3` uses the KroneckerProduct module from the
 `unsupported` collection of modules of Eigen.
 
