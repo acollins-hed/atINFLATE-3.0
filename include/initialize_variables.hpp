@@ -10,6 +10,7 @@
 #include "convertToDouble.hpp"
 #include "BadConversion.hpp"
 #include "common_variables.hpp"
+#include "create_log_file.hpp"
 #include<cfloat>
 #include<unsupported/Eigen/KroneckerProduct>
 
