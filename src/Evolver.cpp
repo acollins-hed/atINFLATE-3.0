@@ -454,6 +454,8 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   //rate dependent and masking is applied
   if(common_variables->rate){
     for(int trajectory=0; trajectory<N_trajectory;trajectory++){
+      struct Mutant fixed_mutant;
+      common_variables->fixed_mutant = fixed_mutant;
       Get_Next_TransMach(trajectory,common_variables);
       Set_New_Population_rd(common_variables);
       //common_variables->prob_of_1_mutation=0;
