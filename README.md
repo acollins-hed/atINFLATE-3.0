@@ -55,7 +55,7 @@ the amino acid physicochemical values to be distributed uniformly along [0,1],
 mutation rate to 0.1, `--proofreading` enables kinetic proofreading,
 `--seed=137` sets the random seed to 137, `-0` sets the p parameter for the
 bernoulli distribution for each bit in the interaction interface to 0, `-f=5e-7`
-sets the rate selection constant to $5\times 10^(-7)$,
+sets the rate selection constant to $5\times 10^{-7}$,
 `--Site-Types=50,50,50,50,50` sets
 all 5 site-type frequencies to 50, `-n=12` sets the interaction interface bit
 length to 12, `-T=5` and `-A=5` set the number of tRNAs and aaRSs to 5 each (it
