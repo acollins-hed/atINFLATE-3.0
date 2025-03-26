@@ -137,6 +137,9 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
 	}
       }
     }
+  } else{
+    std::cout<<"The file "<<common_variables->input_filename+"_checkpoint.log"<<" does not exist\n";
+    return 0;
   }
   
   icheckpoint_file.close();
