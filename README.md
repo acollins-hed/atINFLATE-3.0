@@ -50,7 +50,7 @@ An example of a simulation you might want to run is
 The above will run 3 trajectories (`--num-traj=3`) for 1000 fixations each
 (`--halting-fixation=1000`) and it will only halt if it reaches 1000 fixations
 or the fitness is > 0.9 (`--halting-fitness=0.9`). `--uniform-site-types` sets
-the amino acid physicochemical values to be distributed uniformly along [0,1],
+the site-type physicochemical values to be distributed uniformly along [0,1],
 `--phi=0.8` sets the missense tolerance to 0.8, `--Mu=0.1` sets the per codon
 mutation rate to 0.1, `--proofreading` enables kinetic proofreading,
 `--seed=137` sets the random seed to 137, `-0` sets the p parameter for the
