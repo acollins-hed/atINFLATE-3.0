@@ -45,7 +45,7 @@ and something like a "man" file will echo to the screen.
 ## Example of Use
 An example of a simulation you might want to run is
 
-`bin/atinflate_3 --num-traj=10 --halting-fixation=1000 --halting-fitness=0.9 --uniform-site-types --phi=0.8 --Mu=0.1 --proofreading --seed=137 -0 -f=5e-7 --Site-Types=50,50,50,50,50 -n=12 -T=5 -A=5 --Nthread=8 -o=test`
+`bin/atinflate_3 --num-traj=10 --halting-fixation=1000 --halting-fitness=0.9 --uniform-site-types --phi=0.8 --Mu=0.1 --proofreading --seed=137 -0 -f=5e-7 --Site-Type-freq=50,50,50,50,50 -n=12 -T=5 -A=5 --Nthread=8 -o=test`
 
 The above will run 3 trajectories (`--num-traj=3`) for 1000 fixations each
 (`--halting-fixation=1000`) and it will only halt if it reaches 1000 fixations
@@ -56,7 +56,7 @@ mutation rate to 0.1, `--proofreading` enables kinetic proofreading,
 `--seed=137` sets the random seed to 137, `-0` sets the p parameter for the
 bernoulli distribution for each bit in the interaction interface to 0, `-f=5e-7`
 sets the rate selection constant to $5\times 10^{-7}$,
-`--Site-Types=50,50,50,50,50` sets
+`--Site-Type-freq=50,50,50,50,50` sets
 all 5 site-type frequencies to 50, `-n=12` sets the interaction interface bit
 length to 12, `-T=5` and `-A=5` set the number of tRNAs and aaRSs to 5 each (it
 also sets the number of site-types = 5 by default, unless a different number
@@ -199,10 +199,25 @@ By default `x` is $1$.
 
 By default `x` is $4$.
 
-### `--Site-Types=x,y,z,...`
-Here, `x,y,z,...` refer to the absolute frequency of each site-type. All of `x`, `y`, `z`, and `...` must be positive integers.
+### `--Site-Type-freq=x,y,z,...`
+Here, `x,y,z,...` refer to the
+absolute frequency of each site-type. All of `x`, `y`, `z`, and `...`
+must be positive integers.
 
 By default all site-types have a frequency of $1$.
+
+### `--Site-Type-pvs=x,y,z,...`
+Here, `x,y,z,...` refer to the physicochemical values (pvs) of each site-type. All of `x`, `y`, `z`, and `...` must be unique, nonnegative, and at most $1$. When using this argument with `--Site-Type-freq=` the site-type frequencies are assigned in the same order as `--Site-Type-pvs=`. For example,
+
+`bin/atinflate_3 --Site-Type-freq=1,2,3,4 --Site-Type-pvs=0.1,0.49,0.51,0.999`
+
+would result in a simulation where there is a site-type with pv $0.1$ and frequency $1$, a site-type with pv $0.49$ and frequency $2$, a site-type with pv $0.51$ and frequency $3$, and a site-type with pv $0.999$ and frequency $4$. If the user wants fewer aaRSs than site-types, then the user must also specify the number of site-types. For example,
+
+`bin/atinflate_3 --Site-Type-freq=1,2,3,4 --Site-Type-pvs=0.1,0.49,0.51,0.999 -S=4 -A=3`
+
+In this case the system would have site-types of pv $0.1$, $0.49$, $0.51$, and $0.999$ with frequencies $1$, $2$, $3$, and $4$ respectively, but only aaRSs with amino acids for the first three site-types ($0.1$, $0.49$, and $0.51$) would be present in the system. There would be a site-type with no corresponding amino acid, i.e. $0.999$. 
+
+By default all site-types are randomly drawn from the interval $[0,1]$.
 
 ### `-T=x`, `--tRNAs=x`
 `x` is the number of tRNAs in the system. `x` must be a positive integer. `x` will also determine the number of codons.

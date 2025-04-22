@@ -13,9 +13,9 @@
 
 int initialize_variables(int argc, char* argv[], struct Common_Variables * common_variables){
 
-  bool bl_N_int_interface=false, bl_N_population=false, bl_mu_id_feat=false, bl_mu_per_codon=false,bl_binom_p=false, bl_N_tRNA=false, bl_N_aaRS=false, bl_N_trajectory=false, bl_transition_bias=false, bl_seed=false, bl_kmax=false, bl_kmin=false, bl_halting_fitness=false, bl_halting_fixation=false, bl_phi=false, bl_output_filename=false, bl_N_site_type=false,bl_binom_p_1=false,bl_binom_p_0=false,bl_rate_constant=false,bl_uniform_amino_acids=false,bl_stype_pcv=false;//bl_rate,bl_proofreading=false, bl_mask=false,bl_codon_space=false;
+  bool bl_N_int_interface=false, bl_N_population=false, bl_mu_id_feat=false, bl_mu_per_codon=false,bl_binom_p=false, bl_N_tRNA=false, bl_N_aaRS=false, bl_N_trajectory=false, bl_transition_bias=false, bl_seed=false, bl_kmax=false, bl_kmin=false, bl_halting_fitness=false, bl_halting_fixation=false, bl_phi=false, bl_output_filename=false, bl_N_site_type=false,bl_binom_p_1=false,bl_binom_p_0=false,bl_rate_constant=false,bl_uniform_site_types=false,bl_stype_pcv=false,bl_stype_freq=false;//bl_rate,bl_proofreading=false, bl_mask=false,bl_codon_space=false;
   
-  std::string str_arg,sitestring,codonstring;
+  std::string str_arg,site_freq_string,codonstring,site_pv_string;
 
   std::uniform_real_distribution<double> aadist(0,std::nextafter(1,DBL_MAX));
 
@@ -40,7 +40,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     str_arg = std::string(argv[i]);
     if(str_arg == "-h" || str_arg == "--help")
       {
-	int help = system("echo -e 'ATINFLATE(1)			User Commands			ATINFLATE(1) \n \nNAME \n	atinflate - simulate aaRS-tRNA interaction network evolution. \n \nSYNOPSIS \n	atinflate [OPTIONS] \n \nDESCRIPTION \n	Initializes aaRS and tRNA interaction interfaces and evolve them through \n	a Moran Process \n	 \n	-0\n\t\tInitial genotype is all 0 genotype. Equivalent to\n\t\tatinflate --bp=0\n\t\tRandom by default.\n\n\t-1 \n\t\tInitial genotype is all 1 genotype. Equivalent to\n\t\tatinflate --bp=1\n\t\tRandom by default.\n \n\t-A=x, --aaRSs=x\n\t\twhere x is a positive integer greater than 1 representing the\n\t\tnumber of aaRSs.\n\t\tDefault is the number of site-types.\n\n\t--bp=x\n\t\twhere x is in [0,1] representing the parameter p for a\n\t\tbinomial.\n\t\tDefault is 0.5.\n\n\t--codon-space-x\n\t\twhere x is in {2,4} representing the number of bases.\n\t\tThis also switches from the default space which is a ring space\n\t\twhere each codon can only mutate to one of two neighbors\n\t\ton the ring.\n\t\tDefault is codon ring space.\n\n\t-f=x\n\t\tsets the rate selection parameter to x.\n\t\tDefault: x = 1/44 for no proofreading and\n\t\tx = 1/9680 for proofreading.\n\n\t--halting-fitness=x \n\t\twhere x is in (0,1] representing the halting fitness.\n\t\tDefault is 0.001.\n\n\t--halting-fixation=x\n\t\twhere x is in [1,infinity) representing the halting fixation.\n\t\tDefault is 1.\n\n\t-i=file_name, --ifile=file_name\n\t\twhere file_name is the name of the input checkpoint file\n\t\tDefault: none.\n\n\t--kmax=x\n\t\twhere x is a positive number representing the maximum\n\t\tdissociation rate.\n\t\tDefault is 10000\n\n\t--kmin=x \n\t\twhere x is a positive number representing the minimum\n\t\tdissociation rate.\n\t\tDefault is 220\n\n\t--mu=x \n\t\twhere x is in (0,1) representing mutation rate of identifying\n\t\tfeatures and epistatic modifiers.\n\t\tDefault is 1e-6.\n\n\t--Mu=x\n\t\twhere x is in (0,1) representing the codon mutation rate\n\t\tDefault is 1e-4.\n\n\t-n=x\n\t\twhere x is a positive integer representing interaction\n\t\tinterface word length (the number of bits).\n\t\tDefault is 4.\n\n\t-N=x, --popsize=x\n\t\twhere x is a positive integer representing population size.\n\t\tDefault is 100\n\n\t--Nthread=x\n\t\tSets number of threads for multithreading.\n\t\tDefault is 1.\n\n\t--no-double-mutants\n\t\tOnly checks single mutants. Checks up to double mutants by\n\t\tdefault.\n\n\t--no-mask\n\t\tTurns off masking. Masking is on by default.\n\n\t--no-rate\n\t\tMakes fitness rate independent. Fitness is rate dependent by\n\t\tdefault.\n\n\t--num-traj=x\n\t\twhere x is a positive integer representing the number of\n\t\tsimulation trajectories to run.\n\t\tDefault is 1.\n\n\t-o=file_name, --ofile=file_name\n\t\twhere file_name is the name of the output file without \n\t\textension.\n\t\tDefault is \"run.\"\n\n\t--phi=x\n\t\twhere x is in (0,1) representing missense tolerance, phi.\n\t\tDefault is 0.99.\n\n\t--proofreading\n\t\tapplies kinetic proofreading.\n\t\tDefault: no kinetic proofreading.\n\n\t--seed=x\n\t\twhere x is the seed for the PRNG.\n\t\tDefault is a random device.\n\n\t--trans-bias=x\n\t\twhere x is in [1,infinity) representing the transition bias.\n\t\tDefault is 1.\n \n\t-S=x\n\t\twhere x is the number of site-types.\n\t\tDefault is A, the number of aaRSs\n\n\t--Site-Types=x,y,z,...\n\t\tto customize site-type frequencies. Example, if a system has 5\n\t\tsite-types and their frequencies are 3, 4, 1, 7, 9 \n\t\trespectively, enter\n\t\t\t\tatinflate -S=5 --Site-Types=3,4,1,7,9\n\t\tDefault: all site-type frequencies are set to 1\n\n\t-T=x, --tRNAs=x \n\t\twhere x is a positive integer greater than 1 representing the\n\t\tnumber of tRNAs.\n\t\tDefault is 4.\n\n\t--uniform-site-types\n\t\tSets site-type physicochemical values to uniform across the\n\t\tunit interval, e.g. if S=5, then the site-type target\n\t\tphysicochemical values are 0, 0.25, 0.5, 0.75, and 1.\n\t\tDefault: random across unit interval.\n \n \n \nAUTHOR \n	Written by Andrea Collins-Hed \n \nREPORTING BUGS \n	Report atinflate bugs to <codebugs.retrieval223@passinbox.com> \n \nCOPYLEFT \n	Copyleft (2025) A.I. Collins-Hed All Wrongs Reversed.Please cite \n	Collins-Hed 2025 in published works using this software. Model\n        originally developed in the Ardell lab at the University of\n        California, Merced (UCM) and extended from the atINFLAT model and\n        atinflat.py published in Collins-Hed and Ardell 2019. Versions 1 and\n        2 of atinflate and the atINFLATE model were also developed in the\n        Ardell lab at UCM from 2020-2023.\n \n	  	      	February-March 2025	      	 	ATINFLATE(1) \n'| less");
+	int help = system("echo -e 'ATINFLATE(1)			User Commands			ATINFLATE(1) \n \nNAME \n	atinflate - simulate aaRS-tRNA interaction network evolution. \n \nSYNOPSIS \n	atinflate [OPTIONS] \n \nDESCRIPTION \n	Initializes aaRS and tRNA interaction interfaces and evolve them through \n	a Moran Process \n	 \n	-0\n\t\tInitial genotype is all 0 genotype. Equivalent to\n\t\tatinflate --bp=0\n\t\tRandom by default.\n\n\t-1 \n\t\tInitial genotype is all 1 genotype. Equivalent to\n\t\tatinflate --bp=1\n\t\tRandom by default.\n \n\t-A=x, --aaRSs=x\n\t\twhere x is a positive integer greater than 1 representing the\n\t\tnumber of aaRSs.\n\t\tDefault is the number of site-types.\n\n\t--bp=x\n\t\twhere x is in [0,1] representing the parameter p for a\n\t\tbinomial.\n\t\tDefault is 0.5.\n\n\t--codon-space-x\n\t\twhere x is in {2,4} representing the number of bases.\n\t\tThis also switches from the default space which is a ring space\n\t\twhere each codon can only mutate to one of two neighbors\n\t\ton the ring.\n\t\tDefault is codon ring space.\n\n\t-f=x\n\t\tsets the rate selection parameter to x.\n\t\tDefault: x = 1/44 for no proofreading and\n\t\tx = 1/9680 for proofreading.\n\n\t--halting-fitness=x \n\t\twhere x is in (0,1] representing the halting fitness.\n\t\tDefault is 0.001.\n\n\t--halting-fixation=x\n\t\twhere x is in [1,infinity) representing the halting fixation.\n\t\tDefault is 1.\n\n\t-i=file_name, --ifile=file_name\n\t\twhere file_name is the name of the input checkpoint file\n\t\tDefault: none.\n\n\t--kmax=x\n\t\twhere x is a positive number representing the maximum\n\t\tdissociation rate.\n\t\tDefault is 10000\n\n\t--kmin=x \n\t\twhere x is a positive number representing the minimum\n\t\tdissociation rate.\n\t\tDefault is 220\n\n\t--mu=x \n\t\twhere x is in (0,1) representing mutation rate of identifying\n\t\tfeatures and epistatic modifiers.\n\t\tDefault is 1e-6.\n\n\t--Mu=x\n\t\twhere x is in (0,1) representing the codon mutation rate\n\t\tDefault is 1e-4.\n\n\t-n=x\n\t\twhere x is a positive integer representing interaction\n\t\tinterface word length (the number of bits).\n\t\tDefault is 4.\n\n\t-N=x, --popsize=x\n\t\twhere x is a positive integer representing population size.\n\t\tDefault is 100\n\n\t--Nthread=x\n\t\tSets number of threads for multithreading.\n\t\tDefault is 1.\n\n\t--no-double-mutants\n\t\tOnly checks single mutants. Checks up to double mutants by\n\t\tdefault.\n\n\t--no-mask\n\t\tTurns off masking. Masking is on by default.\n\n\t--no-rate\n\t\tMakes fitness rate independent. Fitness is rate dependent by\n\t\tdefault.\n\n\t--num-traj=x\n\t\twhere x is a positive integer representing the number of\n\t\tsimulation trajectories to run.\n\t\tDefault is 1.\n\n\t-o=file_name, --ofile=file_name\n\t\twhere file_name is the name of the output file without \n\t\textension.\n\t\tDefault is \"run.\"\n\n\t--phi=x\n\t\twhere x is in (0,1) representing missense tolerance, phi.\n\t\tDefault is 0.99.\n\n\t--proofreading\n\t\tapplies kinetic proofreading.\n\t\tDefault: no kinetic proofreading.\n\n\t--seed=x\n\t\twhere x is the seed for the PRNG.\n\t\tDefault is a random device.\n\n\t--trans-bias=x\n\t\twhere x is in [1,infinity) representing the transition bias.\n\t\tDefault is 1.\n \n\t-S=x\n\t\twhere x is the number of site-types.\n\t\tDefault is A, the number of aaRSs\n\n\t--Site-Type-freq=x,y,z,...\n\t\tto customize site-type frequencies. Example, if a system has 5\n\t\tsite-types and their frequencies are 3, 4, 1, 7, 9 \n\t\trespectively, enter\n\t\t\t\tatinflate -S=5 --Site-Type-freq=3,4,1,7,9\n\t\tDefault: all site-type frequencies are set to 1\n\n\t--Site-Type-pvs=x,y,z,...\n\t\tto customize site-type physicochemical values. Example, if a\n\t\tsystem has 3 site-types and their physicochemical values are\n\t\t0.3, 0.4, 1 respectively, enter\n\t\t\t\tatinflate -S=3 --Site-Type-pvs=0.3,0.4,1\n\t\tDefault: all site-type physicochemical values are randomly\n\t\tchosen from [0,1]\n\n\t-T=x, --tRNAs=x \n\t\twhere x is a positive integer greater than 1 representing the\n\t\tnumber of tRNAs.\n\t\tDefault is 4.\n\n\t--uniform-site-types\n\t\tSets site-type physicochemical values to uniform across the\n\t\tunit interval, e.g. if S=5, then the site-type target\n\t\tphysicochemical values are 0, 0.25, 0.5, 0.75, and 1.\n\t\tDefault: random across unit interval.\n \n \n \nAUTHOR \n	Written by Andrea Collins-Hed \n \nREPORTING BUGS \n	Report atinflate bugs to <codebugs.retrieval223@passinbox.com> \n \nCOPYLEFT \n	Copyleft (2025) A.I. Collins-Hed All Wrongs Reversed.Please cite \n	Collins-Hed 2025 in published works using this software. Model\n        originally developed in the Ardell lab at the University of\n        California, Merced (UCM) and extended from the atINFLAT model and\n        atinflat.py published in Collins-Hed and Ardell 2019. Versions 1 and\n        2 of atinflate and the atINFLATE model were also developed in the\n        Ardell lab at UCM from 2020-2023.\n \n	  	      	February-March 2025	      	 	ATINFLATE(1) \n'| less");
 	if(!help)
 	return 0;
       }
@@ -199,7 +199,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
     if(str_arg.substr(0,21) == "--uniform-site-types")
       {
-	bl_uniform_amino_acids=true;
+	bl_uniform_site_types=true;
       }    
 
     if(str_arg.substr(0,19) == "--no-double-mutants")
@@ -239,12 +239,19 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	bl_binom_p = true;
       }
     
-    if(str_arg.substr(0,13) == "--Site-Types=")
+    if(str_arg.substr(0,17) == "--Site-Type-freq=")
       {
-	sitestring = str_arg.substr(13,str_arg.length()-1)+",";
+	site_freq_string = str_arg.substr(17,str_arg.length()-1)+",";
+	bl_stype_freq=true;
+      }
+
+    if(str_arg.substr(0,16) == "--Site-Type-pvs=")
+      {
+	site_pv_string = str_arg.substr(16,str_arg.length()-1)+",";
 	bl_stype_pcv=true;
       }
 
+    
     if(str_arg.substr(0,15) == "--codon-space-2")
       {
 	common_variables->codonspace2=true;
@@ -355,7 +362,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	    }
 	    bl_phi=true;
 	  }
-	if(str_arg.substr(0,7) != "--seed=" && str_arg.substr(0,6) != "--phi=" && str_arg.substr(0,7) != "--kmin=" && str_arg.substr(0,7) != "--kmax=" && str_arg.substr(0,5) != "--mu=" && str_arg.substr(0,9) != "--no-rate" && str_arg.substr(0,21) != "--uniform-site-types" && str_arg.substr(0,2) != "-m" && str_arg.substr(0,3) != "-o=" && str_arg.substr(0,8) != "--ofile=" && str_arg.substr(0,3) != "-T=" && str_arg.substr(0,8) != "--tRNAs=" && str_arg.substr(0,3) != "-A=" && str_arg.substr(0,8) != "--aaRSs=" && str_arg.substr(0,3) != "-N=" && str_arg.substr(0,10) != "--popsize=" && str_arg.substr(0,3) != "-n=" && str_arg.substr(0,2) != "-1" && str_arg.substr(0,2) != "-0" && str_arg.substr(0,11) != "--num-traj=" && str_arg.substr(0,5) != "--bp=" && str_arg.substr(0,5) != "--Mu=" && str_arg.substr(0,13) != "--Site-Types=" && str_arg.substr(0,18) != "--halting-fitness="&& str_arg.substr(0,19) != "--halting-fixation="&& str_arg.substr(0,3) != "-S="&&str_arg.substr(0,15) != "--codon-space-4"&& str_arg.substr(0,15) != "--codon-space-2" && str_arg.substr(0,13) != "--trans-bias=" && str_arg.substr(0,3) != "-i=" && str_arg.substr(0,8) != "--ifile=" && str_arg.substr(0,14) != "--proofreading" && str_arg.substr(0,3) != "-f=" && str_arg.substr(0,19) != "--no-double-mutants" && str_arg.substr(0,9) != "--no-mask" && str_arg.substr(0,10) != "--Nthread="){
+	if(str_arg.substr(0,7) != "--seed=" && str_arg.substr(0,6) != "--phi=" && str_arg.substr(0,7) != "--kmin=" && str_arg.substr(0,7) != "--kmax=" && str_arg.substr(0,5) != "--mu=" && str_arg.substr(0,9) != "--no-rate" && str_arg.substr(0,21) != "--uniform-site-types" && str_arg.substr(0,2) != "-m" && str_arg.substr(0,3) != "-o=" && str_arg.substr(0,8) != "--ofile=" && str_arg.substr(0,3) != "-T=" && str_arg.substr(0,8) != "--tRNAs=" && str_arg.substr(0,3) != "-A=" && str_arg.substr(0,8) != "--aaRSs=" && str_arg.substr(0,3) != "-N=" && str_arg.substr(0,10) != "--popsize=" && str_arg.substr(0,3) != "-n=" && str_arg.substr(0,2) != "-1" && str_arg.substr(0,2) != "-0" && str_arg.substr(0,11) != "--num-traj=" && str_arg.substr(0,5) != "--bp=" && str_arg.substr(0,5) != "--Mu=" && str_arg.substr(0,17) != "--Site-Type-freq=" && str_arg.substr(0,18) != "--halting-fitness="&& str_arg.substr(0,19) != "--halting-fixation="&& str_arg.substr(0,3) != "-S="&&str_arg.substr(0,15) != "--codon-space-4"&& str_arg.substr(0,15) != "--codon-space-2" && str_arg.substr(0,13) != "--trans-bias=" && str_arg.substr(0,3) != "-i=" && str_arg.substr(0,8) != "--ifile=" && str_arg.substr(0,14) != "--proofreading" && str_arg.substr(0,3) != "-f=" && str_arg.substr(0,19) != "--no-double-mutants" && str_arg.substr(0,9) != "--no-mask" && str_arg.substr(0,10) != "--Nthread=" && str_arg.substr(0,16) != "--Site-Type-pvs="){
 	  std::cout<<std::endl<<str_arg<<" is not a recognized parameter. Use -h or --help for more.\n\n";
 	  return 0;
 	}
@@ -453,7 +460,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
       common_variables->N_base = 2;
       common_variables->codon_ring_space=false;
       if(common_variables->N_tRNA != 2 && common_variables->N_tRNA!= 4 && common_variables->N_tRNA!=8){
-	std::cout<<"\nThe number of tRNAs must be 2, 4, or 8 for a codon space with 2 bases. Use --help or -h for more.\n\n";
+	std::cout<<"\nERROR: The number of tRNAs must be 2, 4, or 8 for a codon space with 2 bases. Use --help or -h for more.\n\n";
 	return 0;
       }
     }
@@ -461,7 +468,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
       common_variables->N_base = 4;
       common_variables->codon_ring_space=false;
       if(common_variables->N_tRNA != 4 && common_variables->N_tRNA!= 16 && common_variables->N_tRNA!=64){
-	std::cout<<"\nThe number of tRNAs must be 4, 16, or 64 for a codon space with 4 bases. Use --help or -h for more.\n\n";
+	std::cout<<"\nERROR: The number of tRNAs must be 4, 16, or 64 for a codon space with 4 bases. Use --help or -h for more.\n\n";
 	return 0;
       }
       
@@ -471,33 +478,75 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     for(int i=0;i<common_variables->N_site_type;i++){
       common_variables->site_type_freqs(i) = 1;
     }
-    if(bl_stype_pcv){
-      for(int i=0, j=0, stp=0;i<((int)sitestring.size());i++){
+    if(bl_stype_freq){
+      for(int i=0, j=0, stp=0;i<((int)site_freq_string.size());i++){
 	if(stp >= common_variables->N_site_type){
-	  std::cout<<"There are more fequencies given than site-types. Use --help or -h for more.\n\n";
+	  std::cout<<"ERROR: There are more fequencies given than site-types. Use --help or -h for more.\n\n";
 	  return 0;
 	}
-	if(sitestring.at(i)==','){
-	  common_variables->site_type_freqs(stp) = stoi(sitestring.substr(j,i-j));
+	if(site_freq_string.at(i)==','){
+	  common_variables->site_type_freqs(stp) = stoi(site_freq_string.substr(j,i-j));
 	  stp++;
 	  j = i + 1;
-	  if(i == ((int)sitestring.size())-1 && stp < common_variables->N_site_type){
+	  if(i == ((int)site_freq_string.size())-1 && stp < common_variables->N_site_type){
 	    std::cout<<"WARNING: there are fewer fequencies given than site-types! Use --help or -h for more.\n\n";
 	  }
 	}
       }
-      
     }
 
-    if(bl_uniform_amino_acids){
-      for(int i=0;i<common_variables->N_site_type;i++)
-	common_variables->site_types(i) = ((double) i)/((double) common_variables->N_site_type-1);
+    if(bl_stype_pcv){
+      for(int i=0, j=0, stp=0;i<((int)site_pv_string.size());i++){
+	if(stp >= common_variables->N_site_type){
+	  std::cout<<"ERROR: There are more physicochemical values given than site-types. Use --help or -h for more.\n\n";
+	  return 0;
+	}
+	if(site_pv_string.at(i)==','){
+	  common_variables->site_types(stp) = convertToDouble(site_pv_string.substr(j,i-j));
+	  if(common_variables->site_types(stp) > 1 || common_variables->site_types(stp) < 0){
+	    std::cout<<"ERROR: Site-type physicochemical values must be nonnegative and at most 1\n\n";
+	    return 0;
+	  }
+	  stp++;
+	  j = i + 1;
+	  if(i == ((int)site_pv_string.size())-1 && stp < common_variables->N_site_type){
+	    std::cout<<"ERROR: there are fewer physicochemical values given than site-types! Use --help or -h for more.\n\n";
+	    return 0;
+	  }
+	}
+      }
+      for(int i=0;i<common_variables->N_site_type-1;i++){
+	for(int j=i+1;j<common_variables->N_site_type;j++){
+	  if(common_variables->site_types(i) == common_variables->site_types(j)){
+	    std::cout<<"ERROR: Two or more site-types have equal physicochemical values. Physicochemical values must be unique for each site-type. Use --help or -h for more.\n\n";
+	    return 0;
+	  }
+	}
+      }
+    } else{
+      if(bl_uniform_site_types){
+	for(int i=0;i<common_variables->N_site_type;i++)
+	  common_variables->site_types(i) = ((double) i)/((double) common_variables->N_site_type-1);
+      }
+      else{
+	bool bl_equal=true;
+	while(bl_equal){
+	  for(int i=0;i<common_variables->N_site_type;i++)
+	    common_variables->site_types(i) = aadist(common_variables->mersene_twister);
+	  for(int i=0;i<common_variables->N_site_type-1;i++){
+	    for(int j=i+1;j<common_variables->N_site_type;j++){
+	      if(common_variables->site_types(i) == common_variables->site_types(j)){
+		bl_equal = true;
+	      }
+	      else{
+		bl_equal = false;
+	      }
+	    }
+	  } 
+	}
+      }
     }
-    else{
-      for(int i=0;i<common_variables->N_site_type;i++)
-	common_variables->site_types(i) = aadist(common_variables->mersene_twister);
-    }
-    
+    if(!bl_stype_pcv)
     {
       Eigen::PermutationMatrix<Eigen::Dynamic,Eigen::Dynamic> pm(common_variables->N_site_type);
       pm.setIdentity();
