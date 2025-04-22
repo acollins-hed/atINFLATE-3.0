@@ -167,7 +167,7 @@ By default rate selection is ON.
 ### `--num-traj=x`
 `x` is the number of trajectories the user wishes to run in a single simulation. `x` must be a positive integer.
 
-By default `x` is $1000$.
+By default `x` is $1$.
 
 ### `-o=file_name`, `--ofile=file_name`
 This names the output files. So if, for example, `file_name` is "run", then the output files will be named run.log, run_checkpoint.log, and run_x.dat where the x represents all the different datafiles.
