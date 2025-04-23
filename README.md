@@ -105,7 +105,7 @@ Here, `x` is the fitness threshold at which the trajectory will stop and the sim
 By default `x` is 0.001.
 
 ### `--halting-fixation=x`
-Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the $\text{1000}^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
+Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the ${\sf 1000}^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
 
 By default `x` is 1.
 
