@@ -82,12 +82,12 @@ By default each bit follows a Bernoulli distribution.
 ### `-A=x`, `--aaRS=x`
 Sets the number of aaRSs to `x`. Obviously, `x` must be a positive integer that is at most the number of site-types. If `x` is less than the number of site-types, then only the first `x` site-type physicochemical values will have corresponding aaRSs. To avoid a bias in aaRS physicochemical values, like in the event the `--uniform-site-types` argument is also used, the site-type physicochemical values are randomly permuted first and then the first `x` are chosen to determine which sites have a corresponding amino acid and aaRS.
 
-By default `x` is equal to the number of site-types. The default number of site-types is $4$.
+By default `x` is equal to the number of site-types. The default number of site-types is 4.
 
 ### `--bp=x`
 Sets the p parameter for the Bernoulli distribution used for each bit in the interaction interfaces equal to `x`. That is, `x` is the probability of a 1 and 1-`x` is the probability of 0. Because `x` is a probability, it must be in [0,1].
 
-By default `x`$= 0.5$.
+By default `x` = 0.5.
 
 ### `--codon-space-x`
 where `x` is in {2,4} representing the number of bases. This also switches from the default space. `--codon-space-2` can only be used with `-T=2`, `-T=4`, or `-T=8`. `--codon-space-4` can only be used with `-T=4`, `-T=16`, or `-T=64`.
@@ -105,7 +105,7 @@ Here, `x` is the fitness threshold at which the trajectory will stop and the sim
 By default `x` is 0.001.
 
 ### `--halting-fixation=x`
-Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the 1000$^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
+Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the $\text{1000}^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
 
 By default `x` is 1.
 
