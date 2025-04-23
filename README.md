@@ -105,7 +105,7 @@ Here, `x` is the fitness threshold at which the trajectory will stop and the sim
 By default `x` is 0.001.
 
 ### `--halting-fixation=x`
-Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the ${\sf 1000}^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
+Here, `x` is the fixation threshold at which the trajectory will stop and the simulation will either move onto the next trajectory or, if there are no trajectories left, cease the simulation. So, if `x` is 1000, then once the trajectory reaches the ${\tt 1000}^{\text{th}}$ fixation, the trajectory is terminated and the simulation moves on the next trajectory if there is one or ceases. `x` must be a positive integer.
 
 By default `x` is 1.
 
@@ -115,24 +115,24 @@ Here, `file_name` is the name of the input data you want to continue running, ma
 There is no default.
 
 ### `--kmax=x`
-`x` is a positive number representing the maximum dissociation rate between tRNAs and aaRSs measured in seconds$^{-1}$. `x` must be strictly larger than the value for `kmin`.
+`x` is a positive number representing the maximum dissociation rate between tRNAs and aaRSs measured in ${\tt seconds}^{-1}$. `x` must be strictly larger than the value for `kmin`.
 
-By default `x` is 10$^4$.
+By default `x` is ${\tt 10}^4$.
 
 ### `--kmin=x`
-`x` is a positive number representing the minimum dissociation rate between tRNAs and aaRSs measured in seconds$^{-1}$. `x` must be strictly smaller than the value for `kmax`.
+`x` is a positive number representing the minimum dissociation rate between tRNAs and aaRSs measured in ${\tt seconds}^{-1}$. `x` must be strictly smaller than the value for `kmax`.
 
 By default `x` is 220.
 
 ### `--mu=x`
 `x` is the mutation rate of identifying features and epistatic modifiers. It must be in (0,1) and at least an order of magnitude smaller than the codon mutation rate, `--Mu`.
 
-By default `x` is 10$^{-6}$.
+By default `x` is ${\tt 10}^{-6}$.
 
 ### `--Mu=x`
 `x` is the codon mutation rate. This refers to the mutation rate of the codon quasispecies. `x` must be in (0,1) and be at least an order of magnitude larger than the mutation rate for identifying features and epistatic modifiers.
 
-By default `x` is 10$^{-4}$.
+By default `x` is ${\tt 10}^{-4}$.
 
 ### `-n=x`
 `x` is the interaction interface word length, that is, the number of bits that make up the interaction interfaces. `x` must be a positive integer.
