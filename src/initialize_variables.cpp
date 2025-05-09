@@ -307,7 +307,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
       {
 	common_variables->halting_fitness=convertToDouble(str_arg.substr(18,str_arg.length()-1));
 	if(common_variables->halting_fitness <= 0 || common_variables->halting_fitness > 1){
-	  std::cout<<"\nfthalt must be in (0,1]. Use -h or --help for more.\n\n";
+	  std::cout<<"\nhalting-fitness must be in (0,1]. Use -h or --help for more.\n\n";
 	  return 0;
 	}
 	bl_halting_fitness=true;
