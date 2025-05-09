@@ -10,6 +10,10 @@ OBJ := $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 CPPFLAGS := -Iinclude
 CXXFLAGS   := -std=c++11 -O2 -Wall -fmax-errors=10 -Wextra
+DEBUG	:=
+ifeq "$(DEBUG)" "TRUE"
+CXXFLAGS	= -std=c++11 -O0 -g -Wall -fmax-errors=10 -Wextra
+endif
 LDFLAGS  := 
 LDLIBS   := 
 LXXFLAGS := -isystem 
