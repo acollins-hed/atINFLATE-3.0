@@ -29,7 +29,11 @@ type
 
 for example, it might look like: `make EIGEN=/home/user/Eigen/eigen-3.4.0`
 
-and it will compile all the code.
+and it will compile all the code. If you want to run the code through a debugger, use
+
+`make EIGEN=PATH/TO/EIGEN DEBUG=TRUE`
+
+and it will compile using `-g` and `-O0` instead of with `-O2` and no `-g`.
 
 ## Help with Running
 Once compiled, type
