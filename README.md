@@ -44,7 +44,7 @@ or
 
 `bin/atinflate_3 --help`
 
-and something like a "man" file will echo to the screen.
+and something like a "man" page will echo to the screen.
 
 ## Example of Use
 An example of a simulation you might want to run is
@@ -194,7 +194,7 @@ By default kinetic proofreading is OFF.
 By default the random seed is generated with a random device from std::random_device.
 
 ### `--trans-bias=x`
-`x` is the transition bias, that is the bias in favor of transtion mutations over transversions. A transition mutation refers to mutations between bases of the same kind, that is from one purine to another or one pyrimidine to another, and transversion are mutations from purine to pyrimidine or visa versa. `x` must be at least 1, where `x` equal to 1 means there is no bias and `x`>1 implies a transition bias. This parameter can only be used with `--codon-space-4` as it has no meaning in either `--codon-space-2` or codon ring space.
+`x` is the transition bias, that is the bias in favor of transtion mutations over transversions. A transition mutation refers to mutations between bases of the same kind, that is from one purine to another or one pyrimidine to another, and transversions are mutations from purine to pyrimidine or visa versa. `x` must be at least 1, where `x` equal to 1 means there is no bias and `x`>1 implies a transition bias. This parameter can only be used with `--codon-space-4` as it has no meaning in either `--codon-space-2` or codon ring space.
 
 By default `x` is 1.
 
@@ -231,4 +231,4 @@ By default `x` is 4.
 ### `--uniform-site-types`
 This argument distributes the physicochemical values of the site-types uniformly across [0,1]. So if `-S=5`, then there will be a site-type with physicochemcial value $0$, one with $\frac{1}{4}$, one with $\frac{1}{2}$, one with $\frac{3}{4}$, and one with $1$ as a physicochemical value.
 
-By default site-type and amino acid physicochemical values are randomly chosen across [0,1].
+By default site-type and amino acid physicochemical values are randomly drawn across [0,1].
