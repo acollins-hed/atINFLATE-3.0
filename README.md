@@ -49,8 +49,9 @@ and something like a "man" page will echo to the screen.
 ## Example of Use
 An example of a simulation you might want to run is
 
-`bin/atinflate_3 --num-traj=10 --halting-fixation=1000 --halting-fitness=0.9 --uniform-site-types \
---phi=0.8 --Mu=0.1 --proofreading --seed=137 -0 -f=5e-7 --Site-Type-freq=50,50,50,50,50 -n=12 -T=5 \ -A=5 --Nthread=8 -o=test`
+`bin/atinflate_3 --num-traj=10 --halting-fixation=1000 --halting-fitness=0.9 --uniform-site-types \`
+`--phi=0.8 --Mu=0.1 --proofreading --seed=137 -0 -f=5e-7 --Site-Type-freq=50,50,50,50,50 -n=12 -T=5 \`
+`-A=5 --Nthread=8 -o=test`
 
 The above will run 3 trajectories (`--num-traj=3`) for 1000 fixations each
 (`--halting-fixation=1000`) and it will only halt if it reaches 1000 fixations
