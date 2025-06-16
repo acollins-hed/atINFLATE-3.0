@@ -15,7 +15,7 @@ ifeq "$(DEBUG)" "TRUE"
 CXXFLAGS	= -std=c++11 -O0 -g -Wall -fmax-errors=10 -Wextra
 endif
 LDFLAGS  := 
-LDLIBS   := 
+LDLIBS   := -pthread
 LXXFLAGS := -isystem 
 EIGEN    :=
 LXXFLAGS += $(EIGEN)
