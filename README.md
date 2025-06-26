@@ -3,7 +3,7 @@ February-March 2025
 
 Welcome to atINFLATE 3.0. AtINFLATE is the (a)aRS-(t)RNA (I)nteraction
 (N)etwork (F)itness (LA)ndscape (T)opographer (E)xpress, a dynamic model of 
-its predecessor, atINFLAT, published in Collins-Hed and Ardell 2019. 
+its predecessor, atINFLAT, published in [Collins-Hed and Ardell 2019](https://doi.org/10.1016/j.tpb.2019.03.007). 
 
 ## Getting Started
 Clone the atINFLATE-3.0 git repository and change directory into your local
