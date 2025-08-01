@@ -2,8 +2,8 @@
 #define CONV_TO_DOUB_HPP
 
 #include<sstream>
-#include "BadConversion.hpp"
+#include "Bad_Conversion.hpp"
 
-double convertToDouble(const std::string& s);
+double Convert_To_Double(const std::string& s);
 
 #endif

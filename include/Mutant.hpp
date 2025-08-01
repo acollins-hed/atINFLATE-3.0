@@ -5,7 +5,7 @@
 //#include<Eigen/Dense>
 //#include<Eigen/Core>
 #include "Mutation.hpp"
-//#include "common_variables.hpp"
+//#include "Common_Variables.hpp"
 //#include "generate_initial_trans_machinery.hpp"
 
 struct Mutant{

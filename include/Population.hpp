@@ -4,7 +4,7 @@
 #include<iostream>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-#include "common_variables.hpp"
+#include "Common_Variables.hpp"
 #include "Genotype.hpp"
 #include "Mutant.hpp"
 

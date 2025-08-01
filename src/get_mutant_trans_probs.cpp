@@ -2,7 +2,7 @@
 #include<algorithm>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-#include "common_variables.hpp"
+#include "Common_Variables.hpp"
 #include "Mutant.hpp"
 #include "fitness_functions.hpp"
 #include "Transition_Probability.hpp"

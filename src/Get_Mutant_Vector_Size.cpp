@@ -1,4 +1,4 @@
-#include "common_variables.hpp"
+#include "Common_Variables.hpp"
 
 int Get_Mutant_Vector_Size(struct Common_Variables * common_variables){
   int single_mutants;

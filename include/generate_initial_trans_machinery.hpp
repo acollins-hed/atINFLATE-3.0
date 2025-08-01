@@ -5,7 +5,7 @@
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include<random>
-#include "common_variables.hpp"
+#include "Common_Variables.hpp"
 #include "Genotype.hpp"
 
 void gen_trans_machry(struct Common_Variables * common_variables);

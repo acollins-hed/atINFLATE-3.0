@@ -1,11 +1,11 @@
 #include<sstream>
-#include "BadConversion.hpp"
+#include "Bad_Conversion.hpp"
 
-double convertToDouble(const std::string& s)
+double Convert_To_Double(const std::string& s)
 {
   std::istringstream i(s);
   double x;
   if (!(i >> x))
-    throw BadConversion("convertToDouble(\"" + s + "\")");
+    throw Bad_Conversion("Convert_To_Double(\"" + s + "\")");
   return x;
 }

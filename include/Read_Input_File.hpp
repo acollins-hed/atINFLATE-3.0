@@ -5,9 +5,9 @@
 #include <fstream>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-#include "BadConversion.hpp"
-#include "convertToDouble.hpp"
-#include "common_variables.hpp"
+#include "Bad_Conversion.hpp"
+#include "Convert_To_Double.hpp"
+#include "Common_Variables.hpp"
 
 
 int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_fixation);

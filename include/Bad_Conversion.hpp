@@ -5,16 +5,16 @@
 #include<sstream>
 
 
-struct BadConversion : std::runtime_error {
-  BadConversion(const std::string& s);
+struct Bad_Conversion : std::runtime_error {
+  Bad_Conversion(const std::string& s);
 };
 /*
-inline double convertToDouble(const std::string& s)
+inline double Convert_To_Double(const std::string& s)
 {
   std::istringstream i(s);
   double x;
   if (!(i >> x))
-    throw BadConversion("convertToDouble(\"" + s + "\")");
+    throw Bad_Conversion("Convert_To_Double(\"" + s + "\")");
   return x;
 }
 */

@@ -2,9 +2,9 @@
 #include <fstream>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-#include "BadConversion.hpp"
-#include "convertToDouble.hpp"
-#include "common_variables.hpp"
+#include "Bad_Conversion.hpp"
+#include "Convert_To_Double.hpp"
+#include "Common_Variables.hpp"
 
 int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_fixation){
   std::ifstream icheckpoint_file;
@@ -29,9 +29,9 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     icheckpoint_file>>cp;
     common_variables->N_site_type = stoi(cp);
     icheckpoint_file>>cp;
-    common_variables->phi = convertToDouble(cp);
+    common_variables->phi = Convert_To_Double(cp);
     icheckpoint_file>>cp;
-    common_variables->transition_bias = convertToDouble(cp);
+    common_variables->transition_bias = Convert_To_Double(cp);
     icheckpoint_file>>cp;
     common_variables->N_population = stoi(cp);
     common_variables->site_type_freqs.resize(common_variables->N_site_type);
@@ -46,15 +46,15 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     icheckpoint_file>>cp;
     common_variables->proofreading = stoi(cp);
     icheckpoint_file>>cp;
-    common_variables->rate_constant = convertToDouble(cp);
+    common_variables->rate_constant = Convert_To_Double(cp);
     icheckpoint_file>>cp;
-    common_variables->mu_id_feat = convertToDouble(cp);
+    common_variables->mu_id_feat = Convert_To_Double(cp);
     icheckpoint_file>>cp;
-    common_variables->mu_per_codon = convertToDouble(cp);
+    common_variables->mu_per_codon = Convert_To_Double(cp);
     icheckpoint_file>>cp;
-    common_variables->kmax = convertToDouble(cp);
+    common_variables->kmax = Convert_To_Double(cp);
     icheckpoint_file>>cp;
-    common_variables->kmin = convertToDouble(cp);
+    common_variables->kmin = Convert_To_Double(cp);
     if(common_variables->proofreading){
       common_variables->kmax *= common_variables->kmax;
       common_variables->kmin *= common_variables->kmin;
@@ -62,7 +62,7 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     common_variables->site_types.resize(common_variables->N_site_type);
     for(int i = 0;i<common_variables->N_site_type;i++){
       icheckpoint_file>>cp;
-      common_variables->site_types(i) = convertToDouble(cp);
+      common_variables->site_types(i) = Convert_To_Double(cp);
     }
     icheckpoint_file>>cp;
     common_variables->codon_ring_space = stoi(cp);
@@ -75,7 +75,7 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
 	common_variables->codonspace4=true;
     }
     icheckpoint_file>>cp;
-    common_variables->binom_p = convertToDouble(cp);
+    common_variables->binom_p = Convert_To_Double(cp);
     icheckpoint_file>>cp;
     common_variables->N_trajectory = stoi(cp);
     common_variables->tRNA_State_bits.resize(common_variables->N_trajectory,common_variables->N_tRNA);
@@ -85,7 +85,7 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     icheckpoint_file>>cp;
     common_variables->end_fixation = stoi(cp);
     icheckpoint_file>>cp;
-    common_variables->halting_fitness = convertToDouble(cp);
+    common_variables->halting_fitness = Convert_To_Double(cp);
     icheckpoint_file>>cp;
     common_variables->N_threads = stoi(cp);
     if(!bl_halting_fixation){

@@ -11,9 +11,9 @@
 #include<map>
 #include<utility>
 #include "Documents.hpp"
-#include "convertToDouble.hpp"
-#include "BadConversion.hpp"
-#include "common_variables.hpp"
+#include "Convert_To_Double.hpp"
+#include "Bad_Conversion.hpp"
+#include "Common_Variables.hpp"
 #include "inverted_hsum.hpp"
 #include "Transition_Probability.hpp"
 #include "fitness_functions.hpp"

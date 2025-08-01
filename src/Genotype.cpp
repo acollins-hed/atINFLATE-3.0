@@ -1,7 +1,7 @@
 #include<iostream>
 #include<Eigen/Dense>
 #include<Eigen/Core>
-#include "common_variables.hpp"
+#include "Common_Variables.hpp"
 #include "tRNAs.hpp"
 #include "aaRSs.hpp"
 #include "fitness_functions.hpp"

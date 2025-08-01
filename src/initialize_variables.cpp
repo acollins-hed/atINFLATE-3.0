@@ -4,9 +4,9 @@
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include "Read_Input_File.hpp"
-#include "convertToDouble.hpp"
-#include "BadConversion.hpp"
-#include "common_variables.hpp"
+#include "Convert_To_Double.hpp"
+#include "Bad_Conversion.hpp"
+#include "Common_Variables.hpp"
 #include "create_log_file.hpp"
 #include<cfloat>
 #include<unsupported/Eigen/KroneckerProduct>
@@ -96,7 +96,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
     if(str_arg.substr(0,13) == "--trans-bias=")
       {
-	common_variables->transition_bias = convertToDouble(str_arg.substr(13,str_arg.length()-1));
+	common_variables->transition_bias = Convert_To_Double(str_arg.substr(13,str_arg.length()-1));
 	if(common_variables->transition_bias < 1){
 	  std::cout<<"\ntrans-bias must be a positive number, at least 1. Use -h or --help for more.\n\n";
 	  return 0;
@@ -288,7 +288,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     
     if(str_arg.substr(0,5) == "--mu=")
       {
-	common_variables->mu_id_feat=convertToDouble(str_arg.substr(5,str_arg.length()-1));
+	common_variables->mu_id_feat=Convert_To_Double(str_arg.substr(5,str_arg.length()-1));
 	if(common_variables->mu_id_feat <= 0 || common_variables->mu_id_feat >= 1){
 	  std::cout<<"\nmu must be in (0,1). Use -h or --help for more.\n\n";
 	  return 0;
@@ -298,7 +298,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
     if(str_arg.substr(0,5) == "--bp=")
       {
-	common_variables->binom_p=convertToDouble(str_arg.substr(5,str_arg.length()-1));
+	common_variables->binom_p=Convert_To_Double(str_arg.substr(5,str_arg.length()-1));
 	if(common_variables->binom_p < 0 || common_variables->binom_p > 1){
 	  std::cout<<"\np must be in [0,1]. Use -h or --help for more.\n\n";
 	  return 0;
@@ -309,7 +309,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     
     if(str_arg.substr(0,5) == "--Mu=")
       {
-	common_variables->mu_per_codon=convertToDouble(str_arg.substr(5,str_arg.length()-1));
+	common_variables->mu_per_codon=Convert_To_Double(str_arg.substr(5,str_arg.length()-1));
 	if(common_variables->mu_per_codon <= 0 || common_variables->mu_per_codon >= 1){
 	  std::cout<<"\nMu must be in (0,1). Use -h or --help for more.\n\n";
 	  return 0;
@@ -319,7 +319,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     
     if(str_arg.substr(0,18) == "--halting-fitness=")
       {
-	common_variables->halting_fitness=convertToDouble(str_arg.substr(18,str_arg.length()-1));
+	common_variables->halting_fitness=Convert_To_Double(str_arg.substr(18,str_arg.length()-1));
 	if(common_variables->halting_fitness <= 0 || common_variables->halting_fitness > 1){
 	  std::cout<<"\nhalting-fitness must be in (0,1]. Use -h or --help for more.\n\n";
 	  return 0;
@@ -340,7 +340,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
     if(str_arg.substr(0,7) == "--kmax=")
       {
-	common_variables->kmax=float(convertToDouble(str_arg.substr(7,str_arg.length()-1)));
+	common_variables->kmax=float(Convert_To_Double(str_arg.substr(7,str_arg.length()-1)));
 	if(common_variables->kmax <= 0){
 	  std::cout<<"\nkmax must be in (0,infinity). Use -h or --help for more.\n\n";
 	  return 0;
@@ -350,7 +350,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
         if(str_arg.substr(0,7) == "--kmin=")
       {
-	common_variables->kmin=float(convertToDouble(str_arg.substr(7,str_arg.length()-1)));
+	common_variables->kmin=float(Convert_To_Double(str_arg.substr(7,str_arg.length()-1)));
 	if(common_variables->kmin <= 0){
 	  std::cout<<"\nkmin must be in (0,infinity). Use -h or --help for more.\n\n";
 	  return 0;
@@ -359,7 +359,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
       }
 	if(str_arg.substr(0,3) == "-f=")
 	  {
-	    common_variables->rate_constant=convertToDouble(str_arg.substr(3,str_arg.length()-1));
+	    common_variables->rate_constant=Convert_To_Double(str_arg.substr(3,str_arg.length()-1));
 	    if(common_variables->rate_constant <= 0 ){
 	      std::cout<<"\nf must be in (0,infinity). Use -h or --help for more.\n\n";
 	      return 0;
@@ -369,7 +369,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	
         if(str_arg.substr(0,6) == "--phi=")
 	  {
-	    common_variables->phi=convertToDouble(str_arg.substr(6,str_arg.length()-1));
+	    common_variables->phi=Convert_To_Double(str_arg.substr(6,str_arg.length()-1));
 	    if(common_variables->phi <= 0 || common_variables->phi >= 1){
 	      std::cout<<"\nphi must be in (0,1). Use -h or --help for more.\n\n";
 	      return 0;
@@ -516,7 +516,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	  return 0;
 	}
 	if(site_pv_string.at(i)==','){
-	  common_variables->site_types(stp) = convertToDouble(site_pv_string.substr(j,i-j));
+	  common_variables->site_types(stp) = Convert_To_Double(site_pv_string.substr(j,i-j));
 	  if(common_variables->site_types(stp) > 1 || common_variables->site_types(stp) < 0){
 	    std::cout<<"ERROR: Site-type physicochemical values must be nonnegative and at most 1\n\n";
 	    return 0;
