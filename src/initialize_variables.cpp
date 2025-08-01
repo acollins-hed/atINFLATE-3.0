@@ -385,7 +385,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   unsigned int random_number_from_random_device = common_variables->rand_dev();
 
   if(common_variables->bl_input_filename){
-    if(!Read_Input_File(common_variables,bl_halting_fixation))
+    if(!Read_Checkpoint(common_variables,bl_halting_fixation))
       return 0;
   }
   else{

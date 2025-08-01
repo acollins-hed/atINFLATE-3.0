@@ -6,7 +6,7 @@
 #include "Convert_To_Double.hpp"
 #include "Common_Variables.hpp"
 
-int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_fixation){
+int Read_Checkpoint(struct Common_Variables * common_variables, bool bl_halting_fixation){
   std::ifstream icheckpoint_file;
   //icheckpoint_file.open(common_variables->input_filename);
   icheckpoint_file.open(common_variables->input_filename+"_checkpoint.log");
