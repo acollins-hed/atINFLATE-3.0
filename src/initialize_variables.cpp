@@ -24,6 +24,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   common_variables->codon_ring_space=true;
   common_variables->proofreading=false;
   common_variables->bl_input_filename=false;
+  common_variables->bl_params_filename=false;
   common_variables->output_filename="run";
   common_variables->end_fixation=0;
   common_variables->bl_double_mutants=true;
@@ -197,6 +198,19 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	common_variables->bl_input_filename=true;
       }
 
+    if(str_arg.substr(0,3) == "-p=" || str_arg.substr(0,8) == "--pfile=")
+      {
+	if(str_arg.substr(0,3) == "-p=")
+	  common_variables->params_filename = str_arg.substr(3,str_arg.length()-1);
+	else
+	  common_variables->params_filename = str_arg.substr(8,str_arg.length()-1);
+	if(common_variables->params_filename.empty()){
+	  std::cout<<"\nDid you forget to give your params file a name? Use -h or --help for more.\n\n";
+	  return 0;
+	}
+	common_variables->bl_params_filename=true;
+      }
+    
     if(str_arg.substr(0,21) == "--uniform-site-types")
       {
 	bl_uniform_site_types=true;
@@ -362,7 +376,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 	    }
 	    bl_phi=true;
 	  }
-	if(str_arg.substr(0,7) != "--seed=" && str_arg.substr(0,6) != "--phi=" && str_arg.substr(0,7) != "--kmin=" && str_arg.substr(0,7) != "--kmax=" && str_arg.substr(0,5) != "--mu=" && str_arg.substr(0,9) != "--no-rate" && str_arg.substr(0,21) != "--uniform-site-types" && str_arg.substr(0,2) != "-m" && str_arg.substr(0,3) != "-o=" && str_arg.substr(0,8) != "--ofile=" && str_arg.substr(0,3) != "-T=" && str_arg.substr(0,8) != "--tRNAs=" && str_arg.substr(0,3) != "-A=" && str_arg.substr(0,8) != "--aaRSs=" && str_arg.substr(0,3) != "-N=" && str_arg.substr(0,10) != "--popsize=" && str_arg.substr(0,3) != "-n=" && str_arg.substr(0,2) != "-1" && str_arg.substr(0,2) != "-0" && str_arg.substr(0,11) != "--num-traj=" && str_arg.substr(0,5) != "--bp=" && str_arg.substr(0,5) != "--Mu=" && str_arg.substr(0,17) != "--Site-Type-freq=" && str_arg.substr(0,18) != "--halting-fitness="&& str_arg.substr(0,19) != "--halting-fixation="&& str_arg.substr(0,3) != "-S="&&str_arg.substr(0,15) != "--codon-space-4"&& str_arg.substr(0,15) != "--codon-space-2" && str_arg.substr(0,13) != "--trans-bias=" && str_arg.substr(0,3) != "-i=" && str_arg.substr(0,8) != "--ifile=" && str_arg.substr(0,14) != "--proofreading" && str_arg.substr(0,3) != "-f=" && str_arg.substr(0,19) != "--no-double-mutants" && str_arg.substr(0,9) != "--no-mask" && str_arg.substr(0,10) != "--Nthread=" && str_arg.substr(0,16) != "--Site-Type-pvs="){
+	if(str_arg.substr(0,7) != "--seed=" && str_arg.substr(0,6) != "--phi=" && str_arg.substr(0,7) != "--kmin=" && str_arg.substr(0,7) != "--kmax=" && str_arg.substr(0,5) != "--mu=" && str_arg.substr(0,9) != "--no-rate" && str_arg.substr(0,21) != "--uniform-site-types" && str_arg.substr(0,2) != "-m" && str_arg.substr(0,3) != "-o=" && str_arg.substr(0,8) != "--ofile=" && str_arg.substr(0,3) != "-T=" && str_arg.substr(0,8) != "--tRNAs=" && str_arg.substr(0,3) != "-A=" && str_arg.substr(0,8) != "--aaRSs=" && str_arg.substr(0,3) != "-N=" && str_arg.substr(0,10) != "--popsize=" && str_arg.substr(0,3) != "-n=" && str_arg.substr(0,2) != "-1" && str_arg.substr(0,2) != "-0" && str_arg.substr(0,11) != "--num-traj=" && str_arg.substr(0,5) != "--bp=" && str_arg.substr(0,5) != "--Mu=" && str_arg.substr(0,17) != "--Site-Type-freq=" && str_arg.substr(0,18) != "--halting-fitness="&& str_arg.substr(0,19) != "--halting-fixation="&& str_arg.substr(0,3) != "-S="&&str_arg.substr(0,15) != "--codon-space-4"&& str_arg.substr(0,15) != "--codon-space-2" && str_arg.substr(0,13) != "--trans-bias=" && str_arg.substr(0,3) != "-i=" && str_arg.substr(0,8) != "--ifile=" && str_arg.substr(0,14) != "--proofreading" && str_arg.substr(0,3) != "-f=" && str_arg.substr(0,19) != "--no-double-mutants" && str_arg.substr(0,9) != "--no-mask" && str_arg.substr(0,10) != "--Nthread=" && str_arg.substr(0,16) != "--Site-Type-pvs=" && str_arg.substr(0,3) != "-p=" && str_arg.substr(0,8) != "--pfile="){
 	  std::cout<<std::endl<<str_arg<<" is not a recognized parameter. Use -h or --help for more.\n\n";
 	  return 0;
 	}

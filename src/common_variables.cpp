@@ -36,6 +36,7 @@ struct Common_Variables{
   std::string output_filename;
   std::string mutation_type;
   std::string input_filename;
+  std::string params_filename;
   Eigen::VectorXi site_type_freqs;
   Eigen::VectorXd amino_acids;
   Eigen::VectorXd site_types;
@@ -58,6 +59,7 @@ struct Common_Variables{
   bool proofreading;
   bool bl_rate_const;
   bool bl_input_filename;
+  bool bl_params_filename;
   bool bl_double_mutants;
   struct Mutant fixed_mutant;
 };
