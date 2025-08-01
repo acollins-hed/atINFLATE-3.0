@@ -439,10 +439,10 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
   int N_trajectory = common_variables->N_trajectory;
   std::vector<struct Mutant*> mut_vec_ptr(mutant_vector);
   
-  if(common_variables->bl_input_filename)
-    documents.Open_files(common_variables->input_filename,common_variables->bl_input_filename);
+  if(common_variables->bl_checkpoint_filename)
+    documents.Open_files(common_variables->checkpoint_filename,common_variables->bl_checkpoint_filename);
   else{
-    documents.Open_files(common_variables->output_filename,common_variables->bl_input_filename);
+    documents.Open_files(common_variables->output_filename,common_variables->bl_checkpoint_filename);
     documents.Write_headers();
   }
   
@@ -462,7 +462,7 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       //common_variables->prob_of_2_mutations=0;
       
       fixation = common_variables->end_fixation;
-      if(!common_variables->bl_input_filename){
+      if(!common_variables->bl_checkpoint_filename){
 	common_variables->mutation_type="none";
 	Record_Data(trajectory,fixation,common_variables);
       }
@@ -485,7 +485,7 @@ void Evolver::Run_Simulation(struct Common_Variables * common_variables){
       //common_variables->prob_of_2_mutations=0;
       
       fixation = common_variables->end_fixation;
-      if(!common_variables->bl_input_filename){
+      if(!common_variables->bl_checkpoint_filename){
 	common_variables->mutation_type="none";
 	Record_Data(trajectory,fixation,common_variables);
       }

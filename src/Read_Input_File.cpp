@@ -8,8 +8,8 @@
 
 int Read_Checkpoint(struct Common_Variables * common_variables, bool bl_halting_fixation){
   std::ifstream icheckpoint_file;
-  //icheckpoint_file.open(common_variables->input_filename);
-  icheckpoint_file.open(common_variables->input_filename+"_checkpoint.log");
+  //icheckpoint_file.open(common_variables->checkpoint_filename);
+  icheckpoint_file.open(common_variables->checkpoint_filename+"_checkpoint.log");
   if(icheckpoint_file){
     std::string cp;
     icheckpoint_file>>cp;
@@ -138,7 +138,7 @@ int Read_Checkpoint(struct Common_Variables * common_variables, bool bl_halting_
       }
     }
   } else{
-    std::cout<<"The file "<<common_variables->input_filename+"_checkpoint.log"<<" does not exist\n";
+    std::cout<<"The file "<<common_variables->checkpoint_filename+"_checkpoint.log"<<" does not exist\n";
     return 0;
   }
   

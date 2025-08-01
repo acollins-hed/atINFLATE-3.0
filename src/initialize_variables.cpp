@@ -23,7 +23,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   common_variables->codonspace4 = false;
   common_variables->codon_ring_space=true;
   common_variables->proofreading=false;
-  common_variables->bl_input_filename=false;
+  common_variables->bl_checkpoint_filename=false;
   common_variables->bl_params_filename=false;
   common_variables->output_filename="run";
   common_variables->end_fixation=0;
@@ -188,14 +188,14 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
     if(str_arg.substr(0,3) == "-i=" || str_arg.substr(0,8) == "--ifile=")
       {
 	if(str_arg.substr(0,3) == "-i=")
-	  common_variables->input_filename = str_arg.substr(3,str_arg.length()-1);
+	  common_variables->checkpoint_filename = str_arg.substr(3,str_arg.length()-1);
 	else
-	  common_variables->input_filename = str_arg.substr(8,str_arg.length()-1);
-	if(common_variables->input_filename.empty()){
+	  common_variables->checkpoint_filename = str_arg.substr(8,str_arg.length()-1);
+	if(common_variables->checkpoint_filename.empty()){
 	  std::cout<<"\nDid you forget to give your input file a name? Use -h or --help for more.\n\n";
 	  return 0;
 	}
-	common_variables->bl_input_filename=true;
+	common_variables->bl_checkpoint_filename=true;
       }
 
     if(str_arg.substr(0,3) == "-p=" || str_arg.substr(0,8) == "--pfile=")
@@ -384,7 +384,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
 
   unsigned int random_number_from_random_device = common_variables->rand_dev();
 
-  if(common_variables->bl_input_filename){
+  if(common_variables->bl_checkpoint_filename){
     if(!Read_Checkpoint(common_variables,bl_halting_fixation))
       return 0;
   }
@@ -590,7 +590,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   */
 
   common_variables->epsilon = (log(common_variables->kmax)-log(common_variables->kmin))/double(common_variables->N_int_interface);
-  if(common_variables->proofreading && !common_variables->bl_input_filename){
+  if(common_variables->proofreading && !common_variables->bl_checkpoint_filename){
     common_variables->epsilon = 2*(log(common_variables->kmax)-log(common_variables->kmin))/double(common_variables->N_int_interface);
     common_variables->kmax *= common_variables->kmax;
     common_variables->kmin *= common_variables->kmin;

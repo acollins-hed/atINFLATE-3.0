@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
   else
     common_variables.N_single_mutants = (common_variables.N_tRNA+common_variables.N_aaRS)*common_variables.N_int_interface;
 
-  if(!common_variables.bl_input_filename)
+  if(!common_variables.bl_checkpoint_filename)
     gen_trans_machry(&common_variables);
 
   struct tRNAs trna(0,&common_variables);
