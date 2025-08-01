@@ -89,12 +89,12 @@ int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_
     icheckpoint_file>>cp;
     common_variables->N_threads = stoi(cp);
     if(!bl_halting_fixation){
-      std::cout<<"You need to use --fxhalt with -i or --ifile. See --help or -h for more.\n\n";
+      std::cout<<"You need to use --halting-fixation with -i or --ifile. See --help or -h for more.\n\n";
       return 0;
     }
     else{
       if(common_variables->halting_fixation < common_variables->end_fixation){
-	std::cout<<"The new halting fixation, --fxhalt, must be larger than the ending fixation in the checkpoint.log file. See --help or -h for more.\n\n";
+	std::cout<<"The new halting fixation, --halting-fixation, must be larger than the ending fixation in the checkpoint.log file. See --help or -h for more.\n\n";
 	return 0;
       }
     }
