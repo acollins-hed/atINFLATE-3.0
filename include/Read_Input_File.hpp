@@ -10,6 +10,6 @@
 #include "Common_Variables.hpp"
 
 
-int Read_Input_File(struct Common_Variables * common_variables, bool bl_halting_fixation);
+int Read_Checkpoint(struct Common_Variables * common_variables, bool bl_halting_fixation);
 
 #endif
