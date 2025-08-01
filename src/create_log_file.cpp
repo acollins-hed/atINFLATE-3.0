@@ -144,3 +144,42 @@ void create_log_file(struct Common_Variables * common_variables, bool bl_binom_p
   
   log_file.close();
 }
+
+void create_params_file(struct Common_Variables * common_variables, bool bl_seed,unsigned int random_number_from_random_device){
+  std::ofstream params_file(common_variables->output_filename+"_params.log");
+  params_file<<common_variables->output_filename<<std::endl;
+  params_file<<common_variables->N_int_interface<<std::endl;
+  params_file<<common_variables->N_tRNA<<std::endl;
+  params_file<<common_variables->N_aaRS<<std::endl;
+  params_file<<common_variables->N_site_type<<std::endl;
+  params_file<<common_variables->phi<<std::endl;
+  params_file<<common_variables->transition_bias<<std::endl;
+  params_file<<common_variables->N_population<<std::endl;
+  for(int i=0;i<common_variables->N_site_type;i++)
+    params_file<<common_variables->site_type_freqs(i)<<" ";
+  params_file<<std::endl;
+  params_file<<common_variables->rate<<std::endl;
+  params_file<<common_variables->mask<<std::endl;
+  params_file<<common_variables->proofreading<<std::endl;
+  params_file<<common_variables->rate_constant<<std::endl;
+  params_file<<common_variables->mu_id_feat<<std::endl;
+  params_file<<common_variables->mu_per_codon<<std::endl;
+  params_file<<common_variables->kmax<<std::endl;
+  params_file<<common_variables->kmin<<std::endl;
+  for(int i = 0; i<common_variables->N_site_type;i++)
+    params_file<<common_variables->site_types(i)<<" ";
+  params_file<<std::endl;
+  params_file<<common_variables->codon_ring_space<<std::endl;
+  params_file<<common_variables->N_base<<std::endl;
+  params_file<<common_variables->binom_p<<std::endl;
+  params_file<<common_variables->N_trajectory<<std::endl;
+  params_file<<common_variables->halting_fixation<<std::endl;
+  params_file<<common_variables->halting_fitness<<std::endl;
+  params_file<<common_variables->N_threads<<std::endl;
+  if(bl_seed)
+    params_file<<common_variables->seed<<std::endl;
+  else
+    params_file<<random_number_from_random_device<<std::endl;
+
+  params_file.close();
+}

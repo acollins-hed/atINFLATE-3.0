@@ -577,6 +577,7 @@ int initialize_variables(int argc, char* argv[], struct Common_Variables * commo
   }
   
   create_log_file(common_variables,bl_binom_p_0,bl_binom_p_1,bl_seed,random_number_from_random_device);
+  create_params_file(common_variables,bl_seed,random_number_from_random_device);
   
   //L = (common_variables->N_tRNA+common_variables->N_aaRS)*2*common_variables->N_int_interface;
 
