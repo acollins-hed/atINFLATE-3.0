@@ -18,9 +18,9 @@ struct Evolver{
 
   Evolver(struct Population pop);
 
-  int Hoarse_Partition(int low, int high);
+  //int Hoarse_Partition(int low, int high);
 
-  void Quick_Sort(int low, int high);
+  //void Quick_Sort(int low, int high);
 
   void initialize_mutants(struct Common_Variables * common_variables);
   
@@ -51,7 +51,7 @@ struct Evolver{
 Evolver::Evolver(struct Population pop)
   :population(pop){
 }
-
+/*
 //int Hoarse_Partition(struct Mutant * mutant_array, int low){
 int Evolver::Hoarse_Partition(int low, int high){
   int i = low-1, j = high+1;
@@ -84,7 +84,7 @@ void Evolver::Quick_Sort(int low, int high){
     Quick_Sort(part_index+1,high);
   }
 }
-
+*/
 void Evolver::initialize_mutants(struct Common_Variables * common_variables){
   //mutant_vector.resize(common_variables->N_total_mutants);
   //int N_int_interface = common_variables->N_int_interface;
@@ -179,7 +179,8 @@ void Evolver::Get_Mutants_rd(struct Common_Variables * common_variables){
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   */
-  Quick_Sort(0,common_variables->N_total_mutants - 1);
+  //Quick_Sort(0,common_variables->N_total_mutants - 1);
+  std::sort(mutant_vector.begin(),mutant_vector.end(),[](const Mutant* a, const Mutant* b){return a->trans_prob > b->trans_prob;});
 }
 
 void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
@@ -231,7 +232,8 @@ void Evolver::Get_Mutants_ri(struct Common_Variables * common_variables){
   common_variables->prob_of_1_mutation = common_variables->prob_of_1_mutation/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   common_variables->prob_of_2_mutations = common_variables->prob_of_2_mutations/(common_variables->prob_of_1_mutation + common_variables->prob_of_2_mutations);
   */
-  Quick_Sort(0,common_variables->N_total_mutants - 1);
+  //Quick_Sort(0,common_variables->N_total_mutants - 1);
+  std::sort(mutant_vector.begin(),mutant_vector.end(),[](const Mutant* a, const Mutant* b){return a->trans_prob > b->trans_prob;});
 }
   
 void Evolver::Get_Next_TransMach(int trajectory, struct Common_Variables * common_variables){

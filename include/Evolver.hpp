@@ -21,9 +21,9 @@ struct Evolver{
 
   Evolver(struct Population pop);
 
-  int Hoarse_Partition(int low, int high);
+  //int Hoarse_Partition(int low, int high);
 
-  void Quick_Sort(int low, int high);
+  //void Quick_Sort(int low, int high);
 
   void initialize_mutants(struct Common_Variables * common_variables);
   
