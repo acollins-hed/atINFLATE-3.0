@@ -33,7 +33,7 @@ and it will compile all the code. If you want to run the code through a debugger
 
 `make EIGEN=PATH/TO/EIGEN DEBUG=TRUE`
 
-and it will compile using `-g` and `-O0` instead of with `-O2` and no `-g`.
+and it will compile using `-g3` and `-O0` instead of with `-O2` and no `-g3`.
 
 ## Help with Running
 Once compiled, type
