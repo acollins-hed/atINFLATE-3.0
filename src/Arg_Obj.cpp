@@ -1,3 +1,6 @@
+//Copyright (C) 2026 Andrea Collins-Hed
+//See end of file for extended copyright information.
+
 #include<iostream>
 #include<cctype>
 #include<typeinfo>
@@ -18,24 +21,29 @@ template <typename T> struct Arg_Obj{
   T value;
   T upper_lim;
   T lower_lim;
+  T* cv_value;
   int count;
-  Arg_Obj(std::string name, T v, T ll, T ul, std::string desc, std::string em, std::string& mp);
-  Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, std::string desc, std::string em, std::string& mp);
+  Arg_Obj(std::string name, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp);
+  Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp);
   void check_limits();
   void add_to_manpage(std::string& mp);
 };
 
-template <typename T> Arg_Obj<T>::Arg_Obj(std::string name, T v, T ll, T ul, std::string desc, std::string em, std::string& mp):arg_name(name),value(v),upper_lim(ul),lower_lim(ll),arg_description(desc),arg_error_message(em){
+template <typename T> Arg_Obj<T>::Arg_Obj(std::string name, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp):arg_name(name),value(v),upper_lim(ul),lower_lim(ll),arg_description(desc),arg_error_message(em){
   arg_name2="";
   add_to_manpage(mp);
   count=0;
   check_limits();
+  cv_value = cv_arg;
+  *cv_value = v;
 }
 
-template <typename T> Arg_Obj<T>::Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, std::string desc, std::string em, std::string& mp):arg_name(name),arg_name2(name2),value(v),upper_lim(ul),lower_lim(ll),arg_description(desc),arg_error_message(em){
+template <typename T> Arg_Obj<T>::Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp):arg_name(name),arg_name2(name2),value(v),upper_lim(ul),lower_lim(ll),arg_description(desc),arg_error_message(em){
   add_to_manpage(mp);
   count=0;
   check_limits();
+  cv_value = cv_arg;
+  *cv_value = v;
 }
 
 template <typename T> void Arg_Obj<T>::check_limits(){
@@ -46,6 +54,8 @@ template <typename T> void Arg_Obj<T>::check_limits(){
     } else{
       limit_error = false;
     }
+  } else{
+    limit_error = false;
   }
 }
 
@@ -57,7 +67,6 @@ template <typename T> void Arg_Obj<T>::add_to_manpage(std::string& mp){
   std::string str_value;
   ss_value << value;
   ss_value >> str_value;
-  //int nl_pos = 0;
   
   tidied_description = "\t";
   tidied_description += arg_name;
@@ -103,9 +112,36 @@ template <typename T> void Arg_Obj<T>::add_to_manpage(std::string& mp){
   }
 
   tidied_description += "\n\t\tDefault: ";
-  tidied_description += str_value;
+  if(typeid(value) == typeid(bool)){
+    if(str_value == "1")
+      tidied_description += "true";
+    else
+      tidied_description += "false";
+  } else
+    tidied_description += str_value;
   tidied_description += "\n\n";
-
+  
   mp += tidied_description;
 }
 
+//atinflate_3.cpp is part of atinflate_3
+//atinflate_3 simulates the aaRS-tRNA Interaction Fitness LAndscape
+//Topographer Express (atINFLATE) model, a dynamic extension of the
+//atINFLAT model published in Collins-Hed and Ardell 2019
+//https://www.sciencedirect.com/science/article/pii/S0040580918300789
+//Copyright (C) 2026 Andrea Collins-Hed
+//
+//This file is part of atinflate_3
+//
+//atinflate_3 is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//atinflate_3 is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program. If not, see <https://www.gnu.org/licenses/>. 

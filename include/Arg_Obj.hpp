@@ -21,9 +21,10 @@ template <typename T> struct Arg_Obj{
   T value;
   T upper_lim;
   T lower_lim;
+  T* cv_value;
   int count;
-  Arg_Obj(std::string name, T v, T ll, T ul, std::string desc, std::string em, std::string& mp);
-  Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, std::string desc, std::string em, std::string& mp);
+  Arg_Obj(std::string name, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp);
+  Arg_Obj(std::string name, std::string name2, T v, T ll, T ul, T* cv_arg, std::string desc, std::string em, std::string& mp);
   void check_limits();
   void add_to_manpage(std::string& mp);
 };
